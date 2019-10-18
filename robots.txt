@@ -1,0 +1,2 @@
+User-agent: *
+Sitemap: https://linchengLC.github.io/sitemap.xml

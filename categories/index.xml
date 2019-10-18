@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Categories on Jane - A super concise theme for Hugo</title>
+    <link>https://linchengLC.github.io/categories/</link>
+    <description>Recent content in Categories on Jane - A super concise theme for Hugo</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Fri, 18 Oct 2019 12:11:17 +0800</lastBuildDate>
+    
+	<atom:link href="https://linchengLC.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>数字</title>
+      <link>https://linchengLC.github.io/categories/%E6%95%B0%E5%AD%97/</link>
+      <pubDate>Fri, 18 Oct 2019 12:11:17 +0800</pubDate>
+      
+      <guid>https://linchengLC.github.io/categories/%E6%95%B0%E5%AD%97/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>算法</title>
+      <link>https://linchengLC.github.io/categories/%E7%AE%97%E6%B3%95/</link>
+      <pubDate>Fri, 18 Oct 2019 12:11:17 +0800</pubDate>
+      
+      <guid>https://linchengLC.github.io/categories/%E7%AE%97%E6%B3%95/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>
