@@ -6,10 +6,373 @@
     <description>Recent content on lin&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Fri, 18 Oct 2019 12:11:17 +0800</lastBuildDate>
+    <lastBuildDate>Wed, 23 Oct 2019 12:11:17 +0800</lastBuildDate>
     
         <atom:link href="https://linchengLC.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>MySQL学习笔记</title>
+      <link>https://linchengLC.github.io/post/mysql%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
+      <pubDate>Wed, 23 Oct 2019 12:11:17 +0800</pubDate>
+      
+      <guid>https://linchengLC.github.io/post/mysql%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
+      
+        <description>
+
+&lt;h3 id=&#34;常用mysql命令&#34;&gt;常用mysql命令&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;安装：
+
+&lt;ol&gt;
+&lt;li&gt;Linux 系统联网&lt;/li&gt;
+&lt;li&gt;sudo apt-get update&lt;/li&gt;
+&lt;li&gt;sudo apt-get install mysql-server&lt;/li&gt;
+&lt;/ol&gt;&lt;/li&gt;
+&lt;li&gt;启动：
+
+&lt;ol&gt;
+&lt;li&gt;/etc/init.d/mysql  start/stop/restart&lt;br /&gt;&lt;/li&gt;
+&lt;li&gt;service mysql start/stop/restart&lt;/li&gt;
+&lt;/ol&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;查看：&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;mysql -V 查看版本&lt;/li&gt;
+&lt;li&gt;service mysql status  查看当前mysql服务器运行状态。&lt;/li&gt;
+&lt;li&gt;netstat -apn | grep mysql  查看当前mysql服务器进程（守护进程）信息。 端口：3306&lt;/li&gt;
+&lt;/ol&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;登录：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;语法：mysql -h IP地址 -P 端口号 -u 用户名 -p密码&lt;/li&gt;
+&lt;li&gt;mysql -h 127.0.0.1 -P 3306 -u root -p123456&lt;/li&gt;
+&lt;li&gt;mysql  -u root -p123456  登录本地数据库。 明文密码输入。&lt;/li&gt;
+&lt;li&gt;mysql  -u root -p 回车。  隐藏密码输入。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;一-模糊查询&#34;&gt;一：模糊查询&lt;/h3&gt;
+
+&lt;ol&gt;
+&lt;li&gt;like&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;特点：&lt;/p&gt;
+
+&lt;p&gt;一般和通配符搭配使用&lt;/p&gt;
+
+&lt;p&gt;​                通配符：&lt;/p&gt;
+
+&lt;p&gt;​                %   任意多个字符，包含0个字符&lt;/p&gt;
+
+&lt;p&gt;​                _   任意单个字符&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;between and&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;in&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;is null | is not null&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h4 id=&#34;1-like&#34;&gt;1）LIKE&lt;/h4&gt;
+
+&lt;h5 id=&#34;案例1&#34;&gt;案例1&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询员工名字中包含字符a的员工信息&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select *
+from employees
+where last_name like &#39;%a%&#39;;#abc
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例2&#34;&gt;案例2&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询员工名字中第三个字符为e，第五个字母为a的员工名和工资&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select last_name,salary
+from employees
+where last_name like &#39;__e_a%&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例3&#34;&gt;案例3&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询员工名中第二个字符为_的员工名&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select last_name
+from employees
+where last_name like &#39;_\_%&#39;;
+(where last_name like &#39;_$_%&#39; escape &#39;$&#39;(声明$为转义字符))
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;2-between-and&#34;&gt;2）between and&lt;/h4&gt;
+
+&lt;h5 id=&#34;案例1-1&#34;&gt;案例1&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询员工编号在100到120之间的员工信息&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select *
+from employees
+where employee_id between 100 and 120;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;3-in&#34;&gt;3）in&lt;/h4&gt;
+
+&lt;h5 id=&#34;案例1-2&#34;&gt;案例1&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询员工的工种编号是IT_PROG、AD_VP、AD_PRES中的一个员工名和工种编号&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select last_name,job_id
+from employees
+where job_id in(&#39;IT_PROG&#39;,&#39;AD_VP&#39;,&#39;AD_PRES&#39;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;4-is-null-is-not-null&#34;&gt;4）is null | is not null&lt;/h4&gt;
+
+&lt;h5 id=&#34;案例1-3&#34;&gt;案例1&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询没有奖金的员工名和奖金率&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select last_name,comission_pct
+from employees
+where commission_pct is null;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;5-安全等于-不等于&#34;&gt;5）安全等于&amp;lt;=&amp;gt;、不等于&amp;lt;&amp;gt;&lt;/h4&gt;
+
+&lt;p&gt;&amp;lt;=&amp;gt;既可以判断null值，也可以判断普通的数值，可读性较低&lt;/p&gt;
+
+&lt;h5 id=&#34;案例1-4&#34;&gt;案例1&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询没有奖金的员工名和奖金率&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select last_name,comission_pct
+from employees
+where commission_pct &amp;lt;=&amp;gt; null;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;二-常用函数&#34;&gt;二、常用函数&lt;/h3&gt;
+
+&lt;h4 id=&#34;1-concat函数&#34;&gt;1）concat函数&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;拼接字符&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select concat(字符1，字符2，字符3，....);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;2-distinct&#34;&gt;2）distinct&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;去重&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select distinct 字段名 from 表名
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;3-ifnull&#34;&gt;3）ifnull&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;判断某字段或表达式是否为null，如果为null返回指定的值，否则返回原本的值&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select ifnull(commission_pct,0) from employees;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;4-isnull&#34;&gt;4）isnull&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;判断某个字段或表达式是否为null，如果是，则返回1，否则返回0&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;二-排序查询&#34;&gt;二、排序查询&lt;/h3&gt;
+
+&lt;p&gt;语法：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select 查询列表
+from 表
+【where 筛选条件】
+order by 排序列表 【desc|asc】
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;案例1-5&#34;&gt;案例1&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询员工信息，要求工资从高到低排序&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select * 
+from employees 
+order by salary desc;
+(默认不写为升序)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;案例2-1&#34;&gt;案例2&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询部门编号&amp;gt;=90的员工信息，按入职时间的先后进行排序&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select * 
+from employees 
+where department_id&amp;gt;=90
+order by hiredate asc;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;案例3-1&#34;&gt;案例3&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;按年薪的高低显示员工的信息和年薪【按表达式排序】&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select *,salary*12*(1+ifnull(commission_pct,0)) 年薪
+from employees
+order by 年薪 desc;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;案例4&#34;&gt;案例4&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;按姓名的长度显示员工的姓名和工资【按函数排序】&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select length(last_name) 字节长度,last_name,salary
+from employees
+order by length(last_name) desc;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;案例5&#34;&gt;案例5&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询员工信息，要求先按工资排序，再按员工编号排序【按多个字段排序】&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select * 
+from employees
+order by salary asc,job_id desc;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;三-常见函数&#34;&gt;三、常见函数&lt;/h3&gt;
+
+&lt;h4 id=&#34;1-字符函数&#34;&gt;1）字符函数&lt;/h4&gt;
+
+&lt;ol&gt;
+&lt;li&gt;length  获取参数值的字节个数&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select length(&#39;john&#39;);#4
+   select length(&#39;张三丰haha&#39;);#13
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;concat 拼接字符串&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select concat(last_name,&#39;_&#39;,first_name)
+   from employees;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;upper、lower&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select upper(&#39;john&#39;);
+   select lower(&#39;joHn&#39;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;示例：将姓变大写，名变小写，然后拼接&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select concat(upper(last_name),lower(first_name)) 姓名 
+   from employees;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;substr、substring 截取字符串&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;注意：sql中索引从1开始&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;截取从指定索引处后面所有字符&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select substr(&#39;李莫愁爱上了陆展元&#39;,7) out_put;
+   结果：陆展元
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;截取从指定索引处指定字符长度的字符&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select substr(&#39;李莫愁爱上了陆展元&#39;,1,3) out_put;
+   结果：李莫愁
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;案例：姓名中首字符大写，其他字符小写然后用_拼接，显示出来&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select concat(upper(substr(last_name,1,1)),&#39;_&#39;,lower(substr(last_name,2)))
+   from employees;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;instr 返回子串第一次出现起始索引，如果找不到返回0&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select instr(&#39;杨不殷六侠梅爱上了殷六侠&#39;,&#39;殷六侠&#39;) as out_put;
+   结果：10
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;trim 去除前后空格&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select trim(&#39;  张翠山   &#39;) as out_put;
+   结果：张翠山
+   select trim(&#39;a&#39; from &#39;aaaaaaaa张aaaaaaa翠山aaaaaaaaaaaaaaaaaaaaaaaa&#39;) as out_put;
+   结果：张aaaaaaa翠山
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;lpad 用指定的字符实现左填充指定长度&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select lpad(&#39;殷素素&#39;,10,&#39;*&#39;) as out_put;
+   结果：*******殷素素(加上殷素素为10)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;replace 替换&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select replace(&#39;张无忌爱上了周芷若&#39;,&#39;周芷若&#39;,&#39;赵敏&#39;) as out_put;
+   结果：张无忌爱上了赵敏
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;2-数学函数&#34;&gt;2）数学函数&lt;/h4&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+      
+    </item>
     
     <item>
       <title>反转整数</title>
