@@ -72,7 +72,7 @@
 
 <meta itemprop="datePublished" content="2019-10-26T12:11:17&#43;08:00" />
 <meta itemprop="dateModified" content="2019-10-26T12:11:17&#43;08:00" />
-<meta itemprop="wordCount" content="724">
+<meta itemprop="wordCount" content="872">
 
 
 
@@ -446,6 +446,12 @@
 </code></pre>
 
 <h2 id="基准测试">基准测试</h2>
+
+<blockquote>
+<p>参数解释：</p>
+
+<p>数字<code>8</code>表示<code>GOMAXPROCS</code>的值，这个对于并发基准测试很重要。<code>5000000</code>和<code>384ns/op</code>表示每次调用<code>bytes.Buffer</code>函数耗时<code>384ns</code>，这个结果是<code>5000000</code>次调用的平均值，<code>0 B/op</code>表示每次操作内存分配了0字节，<code>0 allocs/op</code>则表示每次操作进行了0次内存分配。</p>
+</blockquote>
 
 <h3 id="将-json-编码为-bytes-buffer">将 JSON 编码为 bytes.Buffer</h3>
 

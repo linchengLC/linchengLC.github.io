@@ -69,6 +69,12 @@
 
 &lt;h2 id=&#34;基准测试&#34;&gt;基准测试&lt;/h2&gt;
 
+&lt;blockquote&gt;
+&lt;p&gt;参数解释：&lt;/p&gt;
+
+&lt;p&gt;数字&lt;code&gt;8&lt;/code&gt;表示&lt;code&gt;GOMAXPROCS&lt;/code&gt;的值，这个对于并发基准测试很重要。&lt;code&gt;5000000&lt;/code&gt;和&lt;code&gt;384ns/op&lt;/code&gt;表示每次调用&lt;code&gt;bytes.Buffer&lt;/code&gt;函数耗时&lt;code&gt;384ns&lt;/code&gt;，这个结果是&lt;code&gt;5000000&lt;/code&gt;次调用的平均值，&lt;code&gt;0 B/op&lt;/code&gt;表示每次操作内存分配了0字节，&lt;code&gt;0 allocs/op&lt;/code&gt;则表示每次操作进行了0次内存分配。&lt;/p&gt;
+&lt;/blockquote&gt;
+
 &lt;h3 id=&#34;将-json-编码为-bytes-buffer&#34;&gt;将 JSON 编码为 bytes.Buffer&lt;/h3&gt;
 
 &lt;pre&gt;&lt;code&gt;// 对 JSON 编码的代码段
