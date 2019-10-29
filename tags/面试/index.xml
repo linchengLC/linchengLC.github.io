@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>面试 on lin&#39;s blog</title>
+    <link>https://linchengLC.github.io/tags/%E9%9D%A2%E8%AF%95/</link>
+    <description>Recent content in 面试 on lin&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sat, 26 Oct 2019 12:11:17 +0800</lastBuildDate>
+    
+	<atom:link href="https://linchengLC.github.io/tags/%E9%9D%A2%E8%AF%95/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>面试知识点</title>
+      <link>https://linchengLC.github.io/post/%E9%9D%A2%E8%AF%95%E7%9F%A5%E8%AF%86%E7%82%B9/</link>
+      <pubDate>Sat, 26 Oct 2019 12:11:17 +0800</pubDate>
+      
+      <guid>https://linchengLC.github.io/post/%E9%9D%A2%E8%AF%95%E7%9F%A5%E8%AF%86%E7%82%B9/</guid>
+      <description>1. 前言 面试考察的知识点多而杂，要完全掌握需要花费大量的时间和精力。但是面试中经常被问到的知识点却没有多少，你完全可以用 20% 的时间去掌握 80% 常问的</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -21,12 +21,12 @@
     </item>
     
     <item>
-      <title>MySQL学习笔记</title>
-      <link>https://linchengLC.github.io/post/mysql%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
-      <pubDate>Wed, 23 Oct 2019 12:11:17 +0800</pubDate>
+      <title>面试知识点</title>
+      <link>https://linchengLC.github.io/post/%E9%9D%A2%E8%AF%95%E7%9F%A5%E8%AF%86%E7%82%B9/</link>
+      <pubDate>Sat, 26 Oct 2019 12:11:17 +0800</pubDate>
       
-      <guid>https://linchengLC.github.io/post/mysql%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
-      <description>常用mysql命令 安装： Linux 系统联网 sudo apt-get update sudo apt-get install mysql-server 启动： /etc/init.d/mysql start/stop/restart service mysql start/stop/restart 查看： mysql -V 查看版本 service mysql status 查看当前mysql服务器运行状态。 netstat -apn | grep mysql 查看当前</description>
+      <guid>https://linchengLC.github.io/post/%E9%9D%A2%E8%AF%95%E7%9F%A5%E8%AF%86%E7%82%B9/</guid>
+      <description>1. 前言 面试考察的知识点多而杂，要完全掌握需要花费大量的时间和精力。但是面试中经常被问到的知识点却没有多少，你完全可以用 20% 的时间去掌握 80% 常问的</description>
     </item>
     
     <item>
@@ -45,6 +45,19 @@
       
       <guid>https://linchengLC.github.io/post/%E7%BD%97%E9%A9%AC%E6%95%B0%E5%AD%97%E8%BD%AC%E6%8D%A2%E4%B8%BA%E6%95%B4%E6%95%B0/</guid>
       <description>罗马数字包含以下七种字符： I ， V ， X ， L ， C ， D 和 M 。 字符 数值 I 1 V 5 X 10 L 50 C 100 D 500 M 1000 例如， 罗马数字 2 写做 II ，即为两个并列的 1。12 写做</description>
+    </item>
+    
+    <item>
+      <title></title>
+      <link>https://linchengLC.github.io/post/mysql%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://linchengLC.github.io/post/mysql%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
+      <description>title: &amp;ldquo;MySQL学习笔记&amp;rdquo; date: 2019-10-23T12:11:17+08:00 draft: false tags: [&amp;ldquo;MySQL&amp;rdquo;] categories: [&amp;ldquo;MySQL&amp;rdquo;] author: &amp;ldquo;靖多多&amp;rdquo;
+weight: 1
+You can also close(false) or open(true) something for this content. P.S. comment can only be closed comment: false toc: false You can also define another contentCopyright. e.g. contentCopyright: &amp;ldquo;This is another copyright.&amp;rdquo; contentCopyright: &amp;lsquo;See origin&amp;lsquo;
+reward: false mathjax: true
+常用mysql命令  安装：  Linux 系统联网 sudo apt-get update sudo apt-get install mysql-server  启动：  /etc/init.</description>
     </item>
     
   </channel>
