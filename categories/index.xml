@@ -6,10 +6,28 @@
     <description>Recent content in Categories on lin&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Sat, 26 Oct 2019 12:11:17 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 12 Nov 2019 15:11:17 +0800</lastBuildDate>
     
 	<atom:link href="https://linchengLC.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>channel</title>
+      <link>https://linchengLC.github.io/categories/channel/</link>
+      <pubDate>Tue, 12 Nov 2019 15:11:17 +0800</pubDate>
+      
+      <guid>https://linchengLC.github.io/categories/channel/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>golang</title>
+      <link>https://linchengLC.github.io/categories/golang/</link>
+      <pubDate>Tue, 12 Nov 2019 15:11:17 +0800</pubDate>
+      
+      <guid>https://linchengLC.github.io/categories/golang/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>sync包</title>

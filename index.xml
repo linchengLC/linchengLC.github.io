@@ -6,10 +6,222 @@
     <description>Recent content on lin&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Sat, 26 Oct 2019 12:11:17 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 12 Nov 2019 15:11:17 +0800</lastBuildDate>
     
         <atom:link href="https://linchengLC.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Golang的Channel底层原理</title>
+      <link>https://linchengLC.github.io/post/golang%E7%9A%84channel%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/</link>
+      <pubDate>Tue, 12 Nov 2019 15:11:17 +0800</pubDate>
+      
+      <guid>https://linchengLC.github.io/post/golang%E7%9A%84channel%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/</guid>
+      
+        <description>
+
+&lt;h2 id=&#34;channel的整体结构图&#34;&gt;channel的整体结构图&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://user-gold-cdn.xitu.io/2019/4/14/16a1c42b1b52ab08?imageslim&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;简单说明：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;buf&lt;/code&gt;是有缓冲的channel所特有的结构，用来存储缓存数据。是个循环链表&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;sendx&lt;/code&gt;和&lt;code&gt;recvx&lt;/code&gt;用于记录&lt;code&gt;buf&lt;/code&gt;这个循环链表中的~发送或者接收的~index&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;lock&lt;/code&gt;是个互斥锁。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;recvq&lt;/code&gt;和&lt;code&gt;sendq&lt;/code&gt;分别是接收(&amp;lt;-channel)或者发送(channel &amp;lt;- xxx)的goroutine抽象出来的结构体(sudog)的队列。是个双向链表&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;源码位于&lt;code&gt;/runtime/chan.go&lt;/code&gt;中(目前版本：1.11)。结构体为&lt;code&gt;hchan&lt;/code&gt;。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;type hchan struct {
+    qcount   uint           // total data in the queue
+    dataqsiz uint           // size of the circular queue
+    buf      unsafe.Pointer // points to an array of dataqsiz elements
+    elemsize uint16
+    closed   uint32
+    elemtype *_type // element type
+    sendx    uint   // send index
+    recvx    uint   // receive index
+    recvq    waitq  // list of recv waiters
+    sendq    waitq  // list of send waiters
+
+    // lock protects all fields in hchan, as well as several
+    // fields in sudogs blocked on this channel.
+    //
+    // Do not change another G&#39;s status while holding this lock
+    // (in particular, do not ready a G), as this can deadlock
+    // with stack shrinking.
+    lock mutex
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;下面我们来详细介绍&lt;code&gt;hchan&lt;/code&gt;中各部分是如何使用的。&lt;/p&gt;
+
+&lt;h2 id=&#34;先从创建开始&#34;&gt;先从创建开始&lt;/h2&gt;
+
+&lt;p&gt;我们首先创建一个channel。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;ch:=make(chan int,3)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://user-gold-cdn.xitu.io/2019/4/14/16a1c42b1b6f96fc?imageslim&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;创建channel实际上就是在内存中实例化了一个&lt;code&gt;hchan&lt;/code&gt;的结构体，并返回一个ch指针，我们使用过程中channel在函数之间的传递都是用的这个指针，这就是为什么函数传递中无需使用channel的指针，而直接使用channel就行了，因为channel本身就是一个指针。&lt;/p&gt;
+
+&lt;h2 id=&#34;channel中发送send-ch-xxx-和recv-ch-接收&#34;&gt;channel中发送send(ch &amp;lt;- xxx)和recv(&amp;lt;- ch)接收&lt;/h2&gt;
+
+&lt;p&gt;先考虑一个问题，如果你想让goroutine以先进先出(FIFO)的方式进入一个结构体中，你会怎么操作？ 加锁！对的！channel就是用了一个锁。hchan本身包含一个互斥锁&lt;code&gt;mutex&lt;/code&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;channel中队列是如何实现的&#34;&gt;channel中队列是如何实现的&lt;/h3&gt;
+
+&lt;p&gt;channel中有个缓存buf，是用来缓存数据的(假如实例化了带缓存的channel的话)队列。我们先来看看是如何实现“队列”的。 还是刚才创建的那个channel&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;ch:=make(chan int,3)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://user-gold-cdn.xitu.io/2019/4/14/16a1c42b1cde7276?imageView2/0/w/1280/h/960/format/webp/ignore-error/1&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;当使用&lt;code&gt;send (ch &amp;lt;- xx)&lt;/code&gt;或者&lt;code&gt;recv ( &amp;lt;-ch)&lt;/code&gt;的时候，首先要锁住&lt;code&gt;hchan&lt;/code&gt;这个结构体。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://user-gold-cdn.xitu.io/2019/4/14/16a1c42b1d501497?imageView2/0/w/1280/h/960/format/webp/ignore-error/1&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;然后开始&lt;code&gt;send (ch &amp;lt;- xx)&lt;/code&gt;数据。&lt;/p&gt;
+
+&lt;p&gt;一&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;ch&amp;lt;-1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;二&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;ch&amp;lt;-1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;三&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;ch&amp;lt;-1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这时候满了，队列塞不进去了，动态图表示为：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://user-gold-cdn.xitu.io/2019/4/14/16a1c42b1d1b2a18?imageslim&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;然后是取&lt;code&gt;recv ( &amp;lt;-ch)&lt;/code&gt;的过程，是个逆向的操作，也是需要加锁。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://user-gold-cdn.xitu.io/2019/4/14/16a1c42b1d6c9e89?imageView2/0/w/1280/h/960/format/webp/ignore-error/1&#34; alt=&#34;img&#34; /&gt;然后开始&lt;code&gt;recv(&amp;lt;-ch)&lt;/code&gt;数据。&lt;/p&gt;
+
+&lt;p&gt;一&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;&amp;lt;-ch
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;二&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;&amp;lt;-ch
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;三&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;&amp;lt;-ch
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;图为：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://user-gold-cdn.xitu.io/2019/4/14/16a1c42c0265625b?imageslim&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;注意以上两幅图中&lt;code&gt;buf&lt;/code&gt;和&lt;code&gt;recvx&lt;/code&gt;以及&lt;code&gt;sendx&lt;/code&gt;的变化，&lt;code&gt;recvx&lt;/code&gt;和&lt;code&gt;sendx&lt;/code&gt;是根据循环链表&lt;code&gt;buf&lt;/code&gt;的变动而改变的。 至于为什么channel会使用循环链表作为缓存结构，我个人认为是在缓存列表在动态的&lt;code&gt;send&lt;/code&gt;和&lt;code&gt;recv&lt;/code&gt;过程中，定位当前&lt;code&gt;send&lt;/code&gt;或者&lt;code&gt;recvx&lt;/code&gt;的位置、选择&lt;code&gt;send&lt;/code&gt;的和&lt;code&gt;recvx&lt;/code&gt;的位置比较方便吧，只要顺着链表顺序一直旋转操作就好。&lt;/p&gt;
+
+&lt;p&gt;缓存中按链表顺序存放，取数据的时候按链表顺序读取，符合FIFO的原则。&lt;/p&gt;
+
+&lt;h3 id=&#34;send-recv的细化操作&#34;&gt;send/recv的细化操作&lt;/h3&gt;
+
+&lt;p&gt;注意：缓存链表中以上每一步的操作，都是需要加锁操作的！&lt;/p&gt;
+
+&lt;p&gt;每一步的操作的细节可以细化为：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;第一，加锁&lt;/li&gt;
+&lt;li&gt;第二，把数据从goroutine中copy到”队列“中（或者从队列中copy到goroutine中）&lt;/li&gt;
+&lt;li&gt;第三，释放锁&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;每一步的操作总结为动态图为：（发送过程）&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://user-gold-cdn.xitu.io/2019/4/14/16a1c42c18219683?imageslim&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;或者为：（接收过程）&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://user-gold-cdn.xitu.io/2019/4/14/16a1c42c1e49b4ab?imageslim&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;所以不难看出，Go中那句经典的话：&lt;code&gt;Do not communicate by sharing memory; instead, share memory by communicating.&lt;/code&gt;的具体实现就是利用channel把数据从一端copy到了另一端！ 还真是符合&lt;code&gt;channel&lt;/code&gt;的英文含义：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://user-gold-cdn.xitu.io/2019/4/14/16a1c42c4eff6a3f?imageslim&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;当channel缓存满了之后会发生什么-这其中的原理是怎样的&#34;&gt;当channel缓存满了之后会发生什么？这其中的原理是怎样的？&lt;/h3&gt;
+
+&lt;p&gt;使用的时候，我们都知道，当channel缓存满了，或者没有缓存的时候，我们继续send(ch &amp;lt;- xxx)或者recv(&amp;lt;- ch)会阻塞当前goroutine，但是，是如何实现的呢？&lt;/p&gt;
+
+&lt;p&gt;我们知道，Go的goroutine是用户态的线程(&lt;code&gt;user-space threads&lt;/code&gt;)，用户态的线程是需要自己去调度的，Go有运行时的scheduler去帮我们完成调度这件事情。关于Go的调度模型GMP模型我在此不做赘述，如果不了解，可以看我另一篇文章(&lt;a href=&#34;https://i6448038.github.io/2017/12/04/golang-concurrency-principle/&#34;&gt;Go调度原理&lt;/a&gt;)&lt;/p&gt;
+
+&lt;p&gt;goroutine的阻塞操作，实际上是调用&lt;code&gt;send (ch &amp;lt;- xx)&lt;/code&gt;或者&lt;code&gt;recv ( &amp;lt;-ch)&lt;/code&gt;的时候主动触发的，具体请看以下内容：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;//goroutine1 中，记做G1
+
+ch := make(chan int, 3)
+
+ch &amp;lt;- 1
+ch &amp;lt;- 1
+ch &amp;lt;- 1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://user-gold-cdn.xitu.io/2019/4/14/16a1c42c655f26fa?imageView2/0/w/1280/h/960/format/webp/ignore-error/1&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://user-gold-cdn.xitu.io/2019/4/14/16a1c42c7e0fa6b0?imageView2/0/w/1280/h/960/format/webp/ignore-error/1&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;这个时候G1正在正常运行,当再次进行send操作(ch&amp;lt;-1)的时候，会主动调用Go的调度器,让G1等待，并从让出M，让其他G去使用&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://user-gold-cdn.xitu.io/2019/4/14/16a1c42cdb898891?imageView2/0/w/1280/h/960/format/webp/ignore-error/1&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;同时G1也会被抽象成含有G1指针和send元素的&lt;code&gt;sudog&lt;/code&gt;结构体保存到hchan的&lt;code&gt;sendq&lt;/code&gt;中等待被唤醒。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://user-gold-cdn.xitu.io/2019/4/14/16a1c42c806cd876?imageslim&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;那么，G1什么时候被唤醒呢？这个时候G2隆重登场。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://user-gold-cdn.xitu.io/2019/4/14/16a1c42cf9b7a64b?imageView2/0/w/1280/h/960/format/webp/ignore-error/1&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;G2执行了recv操作&lt;code&gt;p := &amp;lt;-ch&lt;/code&gt;，于是会发生以下的操作：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://user-gold-cdn.xitu.io/2019/4/14/16a1c42d08bb757a?imageslim&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;G2从缓存队列中取出数据，channel会将等待队列中的G1推出，将G1当时send的数据推到缓存中，然后调用Go的scheduler，唤醒G1，并把G1放到可运行的Goroutine队列中。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://user-gold-cdn.xitu.io/2019/4/14/16a1c42d0cad71b9?imageslim&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;假如是先进行执行recv操作的g2会怎么样&#34;&gt;假如是先进行执行recv操作的G2会怎么样？&lt;/h3&gt;
+
+&lt;p&gt;你可能会顺着以上的思路反推。首先：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://user-gold-cdn.xitu.io/2019/4/14/16a1c42d3ba03093?imageslim&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;这个时候G2会主动调用Go的调度器,让G2等待，并从让出M，让其他G去使用。 G2还会被抽象成含有G2指针和recv空元素的&lt;code&gt;sudog&lt;/code&gt;结构体保存到hchan的&lt;code&gt;recvq&lt;/code&gt;中等待被唤醒&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://user-gold-cdn.xitu.io/2019/4/14/16a1c42d58ad1148?imageslim&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;此时恰好有个goroutine G1开始向channel中推送数据 &lt;code&gt;ch &amp;lt;- 1&lt;/code&gt;。 此时，非常有意思的事情发生了：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://user-gold-cdn.xitu.io/2019/4/14/16a1c42ddfc04314?imageslim&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;G1并没有锁住channel，然后将数据放到缓存中，而是直接把数据从G1直接copy到了G2的栈中。 这种方式非常的赞！在唤醒过程中，G2无需再获得channel的锁，然后从缓存中取数据。减少了内存的copy，提高了效率。&lt;/p&gt;
+
+&lt;p&gt;之后的事情显而易见：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://user-gold-cdn.xitu.io/2019/4/14/16a1c42e5df40117?imageslim&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+</description>
+      
+    </item>
     
     <item>
       <title>为什么使用sync.pool</title>
