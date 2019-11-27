@@ -82,7 +82,7 @@ reward: false mathjax: true
 
 
 
-<meta itemprop="wordCount" content="979">
+<meta itemprop="wordCount" content="1360">
 
 
 
@@ -472,13 +472,58 @@ reward: false mathjax: true
 <li><a href="#案例10">案例10：</a></li>
 </ul></li>
 </ul></li>
-<li><a href="#七-连接查询">七、连接查询</a>
+<li><a href="#七-连接查询">七、连接查询</a></li>
+<li><a href="#1-sql92语法">1）sql92语法：</a>
 <ul>
 <li><a href="#1-等值连接">1、等值连接</a>
 <ul>
 <li><a href="#案例1-7">案例1：</a></li>
 <li><a href="#案例2-3">案例2：</a></li>
 <li><a href="#案例3-3">案例3：</a></li>
+<li><a href="#案例4-2">案例4：</a></li>
+<li><a href="#案例5-2">案例5：</a></li>
+<li><a href="#案例6-1">案例6：</a></li>
+<li><a href="#案例7-1">案例7：</a></li>
+<li><a href="#案例8-1">案例8：</a></li>
+<li><a href="#案例9-1">案例9：</a></li>
+</ul></li>
+<li><a href="#2-非等值连接">2、非等值连接</a>
+<ul>
+<li><a href="#案例1-8">案例1：</a></li>
+</ul></li>
+<li><a href="#3-自连接">3、自连接</a>
+<ul>
+<li><a href="#案例1-9">案例1：</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#2-sql99语法">2）sql99语法：</a>
+<ul>
+<li><a href="#1-内连接">1、内连接</a></li>
+<li><a href="#①等值连接">①等值连接</a>
+<ul>
+<li><a href="#案例1-10">案例1：</a></li>
+<li><a href="#案例2-4">案例2：</a></li>
+<li><a href="#案例3-4">案例3：</a></li>
+<li><a href="#案例4-3">案例4：</a></li>
+<li><a href="#案例5-3">案例5：</a></li>
+</ul></li>
+<li><a href="#②非等值连接">②非等值连接</a>
+<ul>
+<li><a href="#案例1-11">案例1：</a></li>
+<li><a href="#案例2-5">案例2：</a></li>
+</ul></li>
+<li><a href="#③自连接">③自连接</a>
+<ul>
+<li><a href="#案例1-12">案例1：</a></li>
+</ul></li>
+<li><a href="#2-外连接">2、外连接</a></li>
+<li><a href="#①左外-右外连接">①左外、右外连接</a>
+<ul>
+<li><a href="#案例1-13">案例1：</a></li>
+</ul></li>
+<li><a href="#②全外连接">②全外连接</a>
+<ul>
+<li><a href="#案例1-14">案例1：</a></li>
 </ul></li>
 </ul></li>
 </ul></li>
@@ -1368,6 +1413,8 @@ select COUNT(commission_pct) FROM employees;
 
 <p>​       交叉连接</p>
 
+<h3 id="1-sql92语法">1）sql92语法：</h3>
+
 <h4 id="1-等值连接">1、等值连接</h4>
 
 <h5 id="案例1-7">案例1：</h5>
@@ -1406,6 +1453,317 @@ select COUNT(commission_pct) FROM employees;
   FROM employees as e,jobs as j
   where e.'job_id'=j.'job_id';
 </code></pre>
+
+<h5 id="案例4-2">案例4：</h5>
+
+<ul>
+<li>查询有奖金的员工名、部门名</li>
+</ul>
+
+<pre><code class="language-sql">  select last_name,department_name,commission_pct
+  from employees e,departments d
+  where e.'department_id'=d.'department_id'
+  and e.'commission_pct' is not null;
+</code></pre>
+
+<h5 id="案例5-2">案例5：</h5>
+
+<ul>
+<li>查询城市名中第二个字符为o的部门名和城市名</li>
+</ul>
+
+<pre><code class="language-sql">  select department_name,city
+  from departments d,locations l
+  where d.'location_id'=l.'location_id'
+  and city like '_o%';
+</code></pre>
+
+<h5 id="案例6-1">案例6：</h5>
+
+<ul>
+<li>查询每个城市的部门个数</li>
+</ul>
+
+<pre><code class="language-sql">  select count(*) 个数,city
+  from departments d,locations l
+  where d.'location_id'=l.'location_id'
+  group by city;
+</code></pre>
+
+<h5 id="案例7-1">案例7：</h5>
+
+<ul>
+<li>查询有奖金的每个部门的部门名称和部门的领导编号和该部门的最低工资</li>
+</ul>
+
+<pre><code class="language-sql">  select department_name,d.'manager_id',min(salary)
+  from departments d,employees e
+  where d.'department_id'=e.'department_id'
+  and commission_pct is not null
+  group by department_name;
+</code></pre>
+
+<h5 id="案例8-1">案例8：</h5>
+
+<ul>
+<li>查询每个工种的工种名和员工的个数，并且按员工个数降序</li>
+</ul>
+
+<pre><code class="language-sql">  select job_title,count(*)
+  from employees e,jobs j
+  where e.'job_id'=j.'job_id'
+  group by job_title
+  group by count(*) desc;
+</code></pre>
+
+<h5 id="案例9-1">案例9：</h5>
+
+<ul>
+<li>查询员工名、部门名和所在城市</li>
+</ul>
+
+<pre><code class="language-sql">  select last_name,department_name,city
+  from employees e,departments d,locations l
+  where e.'department_id'=d.'department_id'
+  and d.'location_id'=l.'location_id'
+  and city like 's%'
+  order by department_name desc;
+</code></pre>
+
+<h4 id="2-非等值连接">2、非等值连接</h4>
+
+<h5 id="案例1-8">案例1：</h5>
+
+<ul>
+<li>查询员工的工资和工资级别</li>
+</ul>
+
+<pre><code class="language-sql">  select salary,grade_level
+  from employees e,job_grades g
+  where salary between g.'lowest_sal' and g.'highest_sal';
+</code></pre>
+
+<h4 id="3-自连接">3、自连接</h4>
+
+<h5 id="案例1-9">案例1：</h5>
+
+<ul>
+<li>查询员工名和上级的名称</li>
+</ul>
+
+<pre><code class="language-sql">  select e.'last_name',e.'employee_id',m.'last_name',m.'employee_id',
+  from employees e,employees m
+  where e.'manager_id'=m.'employee_id';
+</code></pre>
+
+<h3 id="2-sql99语法">2）sql99语法：</h3>
+
+<p>语法：</p>
+
+<p>​       select 查询列表</p>
+
+<p>​       from 表1 别名 【连接类型】</p>
+
+<p>​       join   表2 别名</p>
+
+<p>​       on     连接条件</p>
+
+<p>​       【where 筛选条件】</p>
+
+<p>​       【group by 分组】</p>
+
+<p>​       【having 筛选条件】</p>
+
+<p>​       【order by 排序列表】</p>
+
+<p>分类：</p>
+
+<p>内连接（*）：inner</p>
+
+<p>外连接：</p>
+
+<p>​           左外（*）：left 【outer】</p>
+
+<p>​           右外（*）：right 【outer】</p>
+
+<p>​           全外：full 【outer】</p>
+
+<p>交叉连接：cross</p>
+
+<h4 id="1-内连接">1、内连接</h4>
+
+<p>语法：</p>
+
+<p>select 查询列表</p>
+
+<p>from 表1 别名</p>
+
+<p>inner join 表2 别名</p>
+
+<p>on 连接条件</p>
+
+<h4 id="①等值连接">①等值连接</h4>
+
+<h5 id="案例1-10">案例1：</h5>
+
+<ul>
+<li>查询员工名、部门名</li>
+</ul>
+
+<pre><code class="language-sql">  select last_name,department_name
+  from employees e
+  inner join departments d
+  on e.'department_id'=d.'department_id';
+</code></pre>
+
+<h5 id="案例2-4">案例2：</h5>
+
+<ul>
+<li>查询名字中包含e的员工名和工种名（筛选）</li>
+</ul>
+
+<pre><code class="language-sql">  select last_name,job_title
+  from employees e
+  inner join jobs j
+  on e.'job_id'=j.'job_id'
+  where e.'last_name' like '%e%';
+</code></pre>
+
+<h5 id="案例3-4">案例3：</h5>
+
+<ul>
+<li>查询部门个数&gt;3的城市名和部门个数（添加分组+筛选）</li>
+</ul>
+
+<pre><code class="language-sql">  select city,count(*) 部门个数
+  from departments d
+  inner join location l
+  on d.'location_id'=l.'location_id'
+  group by city
+  having count(*)&gt;3;
+</code></pre>
+
+<h5 id="案例4-3">案例4：</h5>
+
+<ul>
+<li>查询哪个部门的部门员工个数&gt;3的部门名和员工个数，并按个数降序(添加排序)</li>
+</ul>
+
+<pre><code class="language-sql">  select department_name,count(*) 个数
+  from employees e
+  inner join departments d
+  on e.'department_id'=d.'department_id'
+  group by d.'department_name'
+  having count(*)&gt;3
+  order by count(*) desc;
+</code></pre>
+
+<h5 id="案例5-3">案例5：</h5>
+
+<ul>
+<li>查询员工名、部门名、工种名，并按部门名降序</li>
+</ul>
+
+<pre><code class="language-sql">  select last_name,department_name,job_title
+  from employees e
+  inner join departments d 
+  on e.'department_id'=d.'deparmtent_id'
+  inner join jobs j
+  on e.'job_id'=j.'job_id'
+  order by department_name desc;
+</code></pre>
+
+<h4 id="②非等值连接">②非等值连接</h4>
+
+<h5 id="案例1-11">案例1：</h5>
+
+<ul>
+<li>查询员工的工资级别</li>
+</ul>
+
+<pre><code class="language-sql">  select salary,grade_level
+  from employees e
+  join job_grades g
+  on e.'salary' between g.'lowest_sal' and g.'highest_sal';
+</code></pre>
+
+<h5 id="案例2-5">案例2：</h5>
+
+<ul>
+<li>查询每个工资级别的个数&gt;2的个数，并且按工资级别降序</li>
+</ul>
+
+<pre><code class="language-sql">  select count(*),grade_level
+  from employees e
+  join job_grades g
+  on e.'salary' between g.'lowest_sal' and g.'highest_sal'
+  group by grade_level
+  having count(*)&gt;2
+  order by grade_level desc;
+</code></pre>
+
+<h4 id="③自连接">③自连接</h4>
+
+<h5 id="案例1-12">案例1：</h5>
+
+<ul>
+<li>查询员工的名字、上级的名字</li>
+</ul>
+
+<pre><code class="language-sql">  select e.'last_name',m.'last_name'
+  from employees e
+  join employees m
+  on e.'manager_id'=m.'employee_id';
+</code></pre>
+
+<h4 id="2-外连接">2、外连接</h4>
+
+<p><strong>应用场景</strong>：用于查询一个表中有，另一个表没有的记录</p>
+
+<p><strong>特点</strong>：</p>
+
+<p>1、外连接的插叙结果为主表中的所有记录</p>
+
+<p>​       如果从表中有和它匹配的，则显示匹配的值</p>
+
+<p>​       如果从表中没有和它匹配的，则显示null</p>
+
+<p>​       外连接查询结果=内连接结果+主表中有而从表没有的记录</p>
+
+<p>2、左外连接，left左边的是主表</p>
+
+<p>​     右外连接，right  join右边的是主表</p>
+
+<p>3、左外和右外交换两个表的顺序，可以实现同样的效果</p>
+
+<p><strong>语法</strong>：</p>
+
+<p>select 查询列表</p>
+
+<p>from 表1 别名</p>
+
+<p>left(right) join 表2 别名</p>
+
+<p>on 连接条件</p>
+
+<h4 id="①左外-右外连接">①左外、右外连接</h4>
+
+<h5 id="案例1-13">案例1：</h5>
+
+<ul>
+<li>查询哪个部门没有员工</li>
+</ul>
+
+<pre><code class="language-sql">  select d.*,employee_id
+  from departments d
+  left join employees e
+  on d.'department_id'=e.'department_id'
+  where e.'employee_id' is null;
+</code></pre>
+
+<h4 id="②全外连接">②全外连接</h4>
+
+<h5 id="案例1-14">案例1：</h5>
 
     </div>
 
