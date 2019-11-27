@@ -56,18 +56,5 @@
       <description>罗马数字包含以下七种字符： I ， V ， X ， L ， C ， D 和 M 。 字符 数值 I 1 V 5 X 10 L 50 C 100 D 500 M 1000 例如， 罗马数字 2 写做 II ，即为两个并列的 1。12 写做</description>
     </item>
     
-    <item>
-      <title></title>
-      <link>https://linchengLC.github.io/post/mysql%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://linchengLC.github.io/post/mysql%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
-      <description>title: &amp;ldquo;MySQL学习笔记&amp;rdquo; date: 2019-10-23T12:11:17+08:00 draft: false tags: [&amp;ldquo;MySQL&amp;rdquo;] categories: [&amp;ldquo;MySQL&amp;rdquo;] author: &amp;ldquo;靖多多&amp;rdquo;
-weight: 1
-You can also close(false) or open(true) something for this content. P.S. comment can only be closed comment: false toc: false You can also define another contentCopyright. e.g. contentCopyright: &amp;ldquo;This is another copyright.&amp;rdquo; contentCopyright: &amp;lsquo;See origin&amp;lsquo;
-reward: false mathjax: true
-常用mysql命令  安装：  Linux 系统联网 sudo apt-get update sudo apt-get install mysql-server  启动：  /etc/init.</description>
-    </item>
-    
   </channel>
 </rss>
