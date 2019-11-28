@@ -6,10 +6,37 @@
     <description>Recent content in Posts on lin&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Tue, 12 Nov 2019 15:11:17 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 28 Nov 2019 12:11:17 +0800</lastBuildDate>
     
 	<atom:link href="https://linchengLC.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>标准库Flag基本使用</title>
+      <link>https://linchengLC.github.io/post/flag/</link>
+      <pubDate>Thu, 28 Nov 2019 12:11:17 +0800</pubDate>
+      
+      <guid>https://linchengLC.github.io/post/flag/</guid>
+      <description>Go语言内置的flag包实现了命令行参数的解析，flag包使得开发命令行工具更为简单。 os.Args 如果你只是简单的想要获取命令行参数，可以像下面的代码</description>
+    </item>
+    
+    <item>
+      <title>Goroutine管理</title>
+      <link>https://linchengLC.github.io/post/goroutine%E7%AE%A1%E7%90%86/</link>
+      <pubDate>Thu, 28 Nov 2019 03:11:17 +0800</pubDate>
+      
+      <guid>https://linchengLC.github.io/post/goroutine%E7%AE%A1%E7%90%86/</guid>
+      <description>Groutine分组管理、sync、WaitGroup 一、sync.WaitGroup{}进行goroutine的控制 WaitGroup等待</description>
+    </item>
+    
+    <item>
+      <title>Mysql学习笔记</title>
+      <link>https://linchengLC.github.io/post/mysql%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
+      <pubDate>Thu, 28 Nov 2019 03:11:17 +0800</pubDate>
+      
+      <guid>https://linchengLC.github.io/post/mysql%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
+      <description>常用mysql命令 安装： Linux 系统联网 sudo apt-get update sudo apt-get install mysql-server 启动： /etc/init.d/mysql start/stop/restart service mysql start/stop/restart 查看： mysql -V 查看版本 service mysql status 查看当前mysql服务器运行状态。 netstat -apn | grep mysql 查看当前</description>
+    </item>
     
     <item>
       <title>Golang的Channel底层原理</title>

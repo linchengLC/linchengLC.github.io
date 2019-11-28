@@ -63,7 +63,7 @@
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://linchengLC.github.io/" />
 
-<meta property="og:updated_time" content="2019-11-12T15:11:17&#43;08:00"/>
+<meta property="og:updated_time" content="2019-11-28T12:11:17&#43;08:00"/>
 
 <meta itemprop="name" content="lin&#39;s blog">
 <meta itemprop="description" content="Hugo theme jane example site.">
@@ -349,16 +349,16 @@
 
         </span>
       
-      <a class="post-link" href="/post/golang%E7%9A%84channel%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/">Golang的Channel底层原理</a>
+      <a class="post-link" href="/post/flag/">标准库Flag基本使用</a>
     </h1>
     
     <div class="post-meta">
-      <time datetime="2019-11-12" class="post-time">
-        2019-11-12
+      <time datetime="2019-11-28" class="post-time">
+        2019-11-28
       </time>
       <div class="post-category">
-          <a href="https://linchengLC.github.io/categories/channel/"> channel </a>
-          <a href="https://linchengLC.github.io/categories/golang/"> golang </a>
+          <a href="https://linchengLC.github.io/categories/flag%E5%8C%85/"> flag包 </a>
+          <a href="https://linchengLC.github.io/categories/go/"> go </a>
           
         </div>
       
@@ -370,10 +370,10 @@
   <div class="post-content">
     
     <div class="post-summary">
-      channel的整体结构图 简单说明： buf是有缓冲的channel所特有的结构，用来存储缓存数据。是个循环链表 sendx和recvx用于记录
+      Go语言内置的flag包实现了命令行参数的解析，flag包使得开发命令行工具更为简单。 os.Args 如果你只是简单的想要获取命令行参数，可以像下面的代码
     </div>
     <div class="read-more">
-      <a href="/post/golang%E7%9A%84channel%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" class="read-more-link">阅读全文</a>
+      <a href="/post/flag/" class="read-more-link">阅读全文</a>
     </div>
     
   </div>
@@ -392,16 +392,16 @@
 
         </span>
       
-      <a class="post-link" href="/post/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8sync.pool/">为什么使用sync.pool</a>
+      <a class="post-link" href="/post/goroutine%E7%AE%A1%E7%90%86/">Goroutine管理</a>
     </h1>
     
     <div class="post-meta">
-      <time datetime="2019-10-26" class="post-time">
-        2019-10-26
+      <time datetime="2019-11-28" class="post-time">
+        2019-11-28
       </time>
       <div class="post-category">
-          <a href="https://linchengLC.github.io/categories/sync%E5%8C%85/"> sync包 </a>
-          <a href="https://linchengLC.github.io/categories/%E8%BF%9E%E6%8E%A5%E6%B1%A0/"> 连接池 </a>
+          <a href="https://linchengLC.github.io/categories/goroutine/"> Goroutine </a>
+          <a href="https://linchengLC.github.io/categories/go/"> go </a>
           
         </div>
       
@@ -413,10 +413,10 @@
   <div class="post-content">
     
     <div class="post-summary">
-      介绍 因为使用Pool后更快。通过文章底部存储库中的基准测试可以较少4982被的内存占用 相比之下，Pool的性能更快更好 ok，这究竟是怎么回事
+      Groutine分组管理、sync、WaitGroup 一、sync.WaitGroup{}进行goroutine的控制 WaitGroup等待
     </div>
     <div class="read-more">
-      <a href="/post/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8sync.pool/" class="read-more-link">阅读全文</a>
+      <a href="/post/goroutine%E7%AE%A1%E7%90%86/" class="read-more-link">阅读全文</a>
     </div>
     
   </div>
@@ -435,15 +435,16 @@
 
         </span>
       
-      <a class="post-link" href="/post/%E9%9D%A2%E8%AF%95%E7%9F%A5%E8%AF%86%E7%82%B9/">面试知识点</a>
+      <a class="post-link" href="/post/mysql%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">Mysql学习笔记</a>
     </h1>
     
     <div class="post-meta">
-      <time datetime="2019-10-26" class="post-time">
-        2019-10-26
+      <time datetime="2019-11-28" class="post-time">
+        2019-11-28
       </time>
       <div class="post-category">
-          <a href="https://linchengLC.github.io/categories/%E9%9D%A2%E8%AF%95/"> 面试 </a>
+          <a href="https://linchengLC.github.io/categories/mysql/"> Mysql </a>
+          <a href="https://linchengLC.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/"> 数据库 </a>
           
         </div>
       
@@ -455,10 +456,10 @@
   <div class="post-content">
     
     <div class="post-summary">
-      1. 前言 面试考察的知识点多而杂，要完全掌握需要花费大量的时间和精力。但是面试中经常被问到的知识点却没有多少，你完全可以用 20% 的时间去掌握 80% 常问的
+      常用mysql命令 安装： Linux 系统联网 sudo apt-get update sudo apt-get install mysql-server 启动： /etc/init.d/mysql start/stop/restart service mysql start/stop/restart 查看： mysql -V 查看版本 service mysql status 查看当前mysql服务器运行状态。 netstat -apn | grep mysql 查看当前
     </div>
     <div class="read-more">
-      <a href="/post/%E9%9D%A2%E8%AF%95%E7%9F%A5%E8%AF%86%E7%82%B9/" class="read-more-link">阅读全文</a>
+      <a href="/post/mysql%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="read-more-link">阅读全文</a>
     </div>
     
   </div>
@@ -496,6 +497,10 @@
       
       <li >
         <a href="/page/2/">2</a>
+      </li>
+      
+      <li >
+        <a href="/page/3/">3</a>
       </li>
       
     </ul>

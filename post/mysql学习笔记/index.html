@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title> - lin&#39;s blog</title>
+  <title>Mysql学习笔记 - lin&#39;s blog</title>
   
 
 <meta name="renderer" content="webkit" />
@@ -22,12 +22,8 @@
 
 <meta name="mobile-web-app-capable" content="yes">
 
-<meta name="author" content="Lin" />
-  <meta name="description" content="title: &amp;ldquo;MySQL学习笔记&amp;rdquo; date: 2019-10-23T12:11:17&#43;08:00 draft: false tags: [&amp;ldquo;MySQL&amp;rdquo;] categories: [&amp;ldquo;MySQL&amp;rdquo;] author: &amp;ldquo;靖多多&amp;rdquo;
-weight: 1
-You can also close(false) or open(true) something for this content. P.S. comment can only be closed comment: false toc: false You can also define another contentCopyright. e.g. contentCopyright: &amp;ldquo;This is another copyright.&amp;rdquo; contentCopyright: &amp;lsquo;See origin&amp;lsquo;
-reward: false mathjax: true
-常用mysql命令  安装：  Linux 系统联网 sudo apt-get update sudo apt-get install mysql-server  启动：  /etc/init." />
+<meta name="author" content="靖多多" />
+  <meta name="description" content="常用mysql命令 安装： Linux 系统联网 sudo apt-get update sudo apt-get install mysql-server 启动： /etc/init.d/mysql start/stop/restart service mysql start/stop/restart 查看： mysql -V 查看版本 service mysql status 查看当前mysql服务器运行状态。 netstat -apn | grep mysql 查看当前" />
 
   <meta name="keywords" content="Hugo, theme, jane" />
 
@@ -63,37 +59,27 @@ reward: false mathjax: true
 
 
 
-<meta property="og:title" content="" />
-<meta property="og:description" content="title: &ldquo;MySQL学习笔记&rdquo; date: 2019-10-23T12:11:17&#43;08:00 draft: false tags: [&ldquo;MySQL&rdquo;] categories: [&ldquo;MySQL&rdquo;] author: &ldquo;靖多多&rdquo;
-weight: 1
-You can also close(false) or open(true) something for this content. P.S. comment can only be closed comment: false toc: false You can also define another contentCopyright. e.g. contentCopyright: &ldquo;This is another copyright.&rdquo; contentCopyright: &lsquo;See origin&lsquo;
-reward: false mathjax: true
-常用mysql命令  安装：  Linux 系统联网 sudo apt-get update sudo apt-get install mysql-server  启动：  /etc/init." />
+<meta property="og:title" content="Mysql学习笔记" />
+<meta property="og:description" content="常用mysql命令 安装： Linux 系统联网 sudo apt-get update sudo apt-get install mysql-server 启动： /etc/init.d/mysql start/stop/restart service mysql start/stop/restart 查看： mysql -V 查看版本 service mysql status 查看当前mysql服务器运行状态。 netstat -apn | grep mysql 查看当前" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://linchengLC.github.io/post/mysql%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" />
+<meta property="article:published_time" content="2019-11-28T03:11:17&#43;08:00"/>
+<meta property="article:modified_time" content="2019-11-28T03:11:17&#43;08:00"/>
+
+<meta itemprop="name" content="Mysql学习笔记">
+<meta itemprop="description" content="常用mysql命令 安装： Linux 系统联网 sudo apt-get update sudo apt-get install mysql-server 启动： /etc/init.d/mysql start/stop/restart service mysql start/stop/restart 查看： mysql -V 查看版本 service mysql status 查看当前mysql服务器运行状态。 netstat -apn | grep mysql 查看当前">
 
 
-<meta itemprop="name" content="">
-<meta itemprop="description" content="title: &ldquo;MySQL学习笔记&rdquo; date: 2019-10-23T12:11:17&#43;08:00 draft: false tags: [&ldquo;MySQL&rdquo;] categories: [&ldquo;MySQL&rdquo;] author: &ldquo;靖多多&rdquo;
-weight: 1
-You can also close(false) or open(true) something for this content. P.S. comment can only be closed comment: false toc: false You can also define another contentCopyright. e.g. contentCopyright: &ldquo;This is another copyright.&rdquo; contentCopyright: &lsquo;See origin&lsquo;
-reward: false mathjax: true
-常用mysql命令  安装：  Linux 系统联网 sudo apt-get update sudo apt-get install mysql-server  启动：  /etc/init.">
-
-
-
-<meta itemprop="wordCount" content="1360">
+<meta itemprop="datePublished" content="2019-11-28T03:11:17&#43;08:00" />
+<meta itemprop="dateModified" content="2019-11-28T03:11:17&#43;08:00" />
+<meta itemprop="wordCount" content="5216">
 
 
 
-<meta itemprop="keywords" content="" />
+<meta itemprop="keywords" content="Mysql,数据库," />
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content=""/>
-<meta name="twitter:description" content="title: &ldquo;MySQL学习笔记&rdquo; date: 2019-10-23T12:11:17&#43;08:00 draft: false tags: [&ldquo;MySQL&rdquo;] categories: [&ldquo;MySQL&rdquo;] author: &ldquo;靖多多&rdquo;
-weight: 1
-You can also close(false) or open(true) something for this content. P.S. comment can only be closed comment: false toc: false You can also define another contentCopyright. e.g. contentCopyright: &ldquo;This is another copyright.&rdquo; contentCopyright: &lsquo;See origin&lsquo;
-reward: false mathjax: true
-常用mysql命令  安装：  Linux 系统联网 sudo apt-get update sudo apt-get install mysql-server  启动：  /etc/init."/>
+<meta name="twitter:title" content="Mysql学习笔记"/>
+<meta name="twitter:description" content="常用mysql命令 安装： Linux 系统联网 sudo apt-get update sudo apt-get install mysql-server 启动： /etc/init.d/mysql start/stop/restart service mysql start/stop/restart 查看： mysql -V 查看版本 service mysql status 查看当前mysql服务器运行状态。 netstat -apn | grep mysql 查看当前"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -355,13 +341,17 @@ reward: false mathjax: true
           <article class="post bg-white">
     
     <header class="post-header">
-      <h1 class="post-title"></h1>
+      <h1 class="post-title">Mysql学习笔记</h1>
       
       <div class="post-meta">
-        <time datetime="0001-01-01" class="post-time">
-          0001-01-01
+        <time datetime="2019-11-28" class="post-time">
+          2019-11-28
         </time>
-        
+        <div class="post-category">
+            <a href="https://linchengLC.github.io/categories/mysql/"> Mysql </a>
+            <a href="https://linchengLC.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/"> 数据库 </a>
+            
+          </div>
         
 
         
@@ -379,12 +369,7 @@ reward: false mathjax: true
   <div class="post-toc-content">
     <nav id="TableOfContents">
 <ul>
-<li><a href="#you-can-also-close-false-or-open-true-something-for-this-content">You can also close(false) or open(true) something for this content.</a></li>
-<li><a href="#p-s-comment-can-only-be-closed">P.S. comment can only be closed</a></li>
-<li><a href="#comment-false">comment: false</a></li>
-<li><a href="#toc-false">toc: false</a></li>
-<li><a href="#you-can-also-define-another-contentcopyright-e-g-contentcopyright-this-is-another-copyright">You can also define another contentCopyright. e.g. contentCopyright: &ldquo;This is another copyright.&rdquo;</a></li>
-<li><a href="#reward-false">reward: false</a>
+<li>
 <ul>
 <li>
 <ul>
@@ -536,31 +521,6 @@ reward: false mathjax: true
     
     <div class="post-content">
       
-
-<p>title: &ldquo;MySQL学习笔记&rdquo;
-date: 2019-10-23T12:11:17+08:00
-draft: false
-tags: [&ldquo;MySQL&rdquo;]
-categories: [&ldquo;MySQL&rdquo;]
-author: &ldquo;靖多多&rdquo;</p>
-
-<p>weight: 1</p>
-
-<h1 id="you-can-also-close-false-or-open-true-something-for-this-content">You can also close(false) or open(true) something for this content.</h1>
-
-<h1 id="p-s-comment-can-only-be-closed">P.S. comment can only be closed</h1>
-
-<h1 id="comment-false">comment: false</h1>
-
-<h1 id="toc-false">toc: false</h1>
-
-<h1 id="you-can-also-define-another-contentcopyright-e-g-contentcopyright-this-is-another-copyright">You can also define another contentCopyright. e.g. contentCopyright: &ldquo;This is another copyright.&rdquo;</h1>
-
-<p>contentCopyright: &lsquo;<a href="https://github.com/gohugoio/hugoBasicExample" rel="noopener" target="_blank">See origin</a>&lsquo;</p>
-
-<h1 id="reward-false">reward: false</h1>
-
-<p>mathjax: true</p>
 
 <h3 id="常用mysql命令">常用mysql命令</h3>
 
@@ -1772,19 +1732,19 @@ select COUNT(commission_pct) FROM employees;
 <div class="post-copyright">
   <p class="copyright-item">
     <span class="item-title">文章作者</span>
-    <span class="item-content">Lin</span>
+    <span class="item-content">靖多多</span>
   </p>
   <p class="copyright-item">
     <span class="item-title">上次更新</span>
     <span class="item-content">
-      0001-01-01
+      2019-11-28
       
     </span>
   </p>
   
   <p class="copyright-item">
     <span class="item-title">许可协议</span>
-    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+    <span class="item-content"><a href="https://github.com/gohugoio/hugoBasicExample" rel="noopener" target="_blank">See origin</a></span>
   </p>
 </div>
 
@@ -1793,12 +1753,16 @@ select COUNT(commission_pct) FROM employees;
     
 
     <footer class="post-footer">
-      
+      <div class="post-tags">
+          <a href="https://linchengLC.github.io/tags/mysql/">Mysql</a>
+          <a href="https://linchengLC.github.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+          
+        </div>
 
       
       <nav class="post-nav">
         
-          <a class="prev" href="/post/%E7%BD%97%E9%A9%AC%E6%95%B0%E5%AD%97%E8%BD%AC%E6%8D%A2%E4%B8%BA%E6%95%B4%E6%95%B0/">
+          <a class="prev" href="/post/goroutine%E7%AE%A1%E7%90%86/">
             
             <i class="iconfont">
               <svg  class="icon" viewBox="0 0 1024 1024" version="1.1"
@@ -1808,10 +1772,23 @@ select COUNT(commission_pct) FROM employees;
 </svg>
 
             </i>
-            <span class="prev-text nav-default">罗马数字转换为整数</span>
+            <span class="prev-text nav-default">Goroutine管理</span>
             <span class="prev-text nav-mobile">上一篇</span>
           </a>
         
+          <a class="next" href="/post/golang%E7%9A%84channel%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/">
+            <span class="next-text nav-default">Golang的Channel底层原理</span>
+            <span class="prev-text nav-mobile">下一篇</span>
+            
+            <i class="iconfont">
+              <svg class="icon" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="18" height="18">
+  <path d="M332.091514 74.487481l-75.369571 89.491197c-10.963703 12.998035-10.285251 32.864502 1.499144 44.378743l286.278095 300.375162L266.565125 819.058374c-11.338233 12.190647-11.035334 32.285311 0.638543 44.850487l80.46666 86.564541c11.680017 12.583596 30.356378 12.893658 41.662889 0.716314l377.434212-421.426145c11.332093-12.183484 11.041474-32.266891-0.657986-44.844348l-80.46666-86.564541c-1.772366-1.910513-3.706415-3.533476-5.750981-4.877077L373.270379 71.774697C361.493148 60.273758 343.054193 61.470003 332.091514 74.487481z"></path>
+</svg>
+
+            </i>
+          </a>
       </nav>
     </footer>
   </article>
@@ -2121,6 +2098,13 @@ select COUNT(commission_pct) FROM employees;
 
 
 
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
 
 
 

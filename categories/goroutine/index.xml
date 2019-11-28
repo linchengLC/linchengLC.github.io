@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Goroutine on lin&#39;s blog</title>
+    <link>https://linchengLC.github.io/categories/goroutine/</link>
+    <description>Recent content in Goroutine on lin&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Thu, 28 Nov 2019 03:11:17 +0800</lastBuildDate>
+    
+	<atom:link href="https://linchengLC.github.io/categories/goroutine/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Goroutine管理</title>
+      <link>https://linchengLC.github.io/post/goroutine%E7%AE%A1%E7%90%86/</link>
+      <pubDate>Thu, 28 Nov 2019 03:11:17 +0800</pubDate>
+      
+      <guid>https://linchengLC.github.io/post/goroutine%E7%AE%A1%E7%90%86/</guid>
+      <description>Groutine分组管理、sync、WaitGroup 一、sync.WaitGroup{}进行goroutine的控制 WaitGroup等待</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Mysql · lin&#39;s blog</title>
+  <title>Goroutine管理 - lin&#39;s blog</title>
   
 
 <meta name="renderer" content="webkit" />
@@ -22,8 +22,9 @@
 
 <meta name="mobile-web-app-capable" content="yes">
 
-<meta name="author" content="Lin" />
-  <meta name="description" content="Hugo theme jane example site." />
+<meta name="author" content="靖多多" />
+  <meta name="description" content="Groutine分组管理、sync、WaitGroup 一、sync.WaitGroup{}进行goroutine的控制 WaitGroup等待" />
+
   <meta name="keywords" content="Hugo, theme, jane" />
 
 
@@ -34,8 +35,8 @@
 <meta name="generator" content="Hugo 0.55.6" />
 
 
-<link rel="canonical" href="https://linchengLC.github.io/categories/mysql/" />
-<link href="/categories/mysql/index.xml" rel="alternate" type="application/rss+xml" title="lin&#39;s blog" />
+<link rel="canonical" href="https://linchengLC.github.io/post/goroutine%E7%AE%A1%E7%90%86/" />
+
 
 
 
@@ -58,19 +59,27 @@
 
 
 
-<meta property="og:title" content="Mysql" />
-<meta property="og:description" content="Hugo theme jane example site." />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://linchengLC.github.io/categories/mysql/" />
+<meta property="og:title" content="Goroutine管理" />
+<meta property="og:description" content="Groutine分组管理、sync、WaitGroup 一、sync.WaitGroup{}进行goroutine的控制 WaitGroup等待" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://linchengLC.github.io/post/goroutine%E7%AE%A1%E7%90%86/" />
+<meta property="article:published_time" content="2019-11-28T03:11:17&#43;08:00"/>
+<meta property="article:modified_time" content="2019-11-28T03:11:17&#43;08:00"/>
 
-<meta property="og:updated_time" content="2019-11-28T03:11:17&#43;08:00"/>
+<meta itemprop="name" content="Goroutine管理">
+<meta itemprop="description" content="Groutine分组管理、sync、WaitGroup 一、sync.WaitGroup{}进行goroutine的控制 WaitGroup等待">
 
-<meta itemprop="name" content="Mysql">
-<meta itemprop="description" content="Hugo theme jane example site.">
 
+<meta itemprop="datePublished" content="2019-11-28T03:11:17&#43;08:00" />
+<meta itemprop="dateModified" content="2019-11-28T03:11:17&#43;08:00" />
+<meta itemprop="wordCount" content="1536">
+
+
+
+<meta itemprop="keywords" content="Goroutine,go," />
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Mysql"/>
-<meta name="twitter:description" content="Hugo theme jane example site."/>
+<meta name="twitter:title" content="Goroutine管理"/>
+<meta name="twitter:description" content="Groutine分组管理、sync、WaitGroup 一、sync.WaitGroup{}进行goroutine的控制 WaitGroup等待"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -329,55 +338,310 @@
     <main id="main" class="main bg-llight">
       <div class="content-wrapper">
         <div id="content" class="content container">
-          
-
-<section id="archive" class="archive">
-  
+          <article class="post bg-white">
     
-      <div class="archive-title category">
-        <h2 class="archive-name">分类： Mysql</h2>
+    <header class="post-header">
+      <h1 class="post-title">Goroutine管理</h1>
+      
+      <div class="post-meta">
+        <time datetime="2019-11-28" class="post-time">
+          2019-11-28
+        </time>
+        <div class="post-category">
+            <a href="https://linchengLC.github.io/categories/goroutine/"> Goroutine </a>
+            <a href="https://linchengLC.github.io/categories/go/"> go </a>
+            
+          </div>
+        
+
+        
+        
+
+        
+        
       </div>
+    </header>
+
     
-  
+    
+<div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#groutine分组管理-sync-waitgroup">Groutine分组管理、sync、WaitGroup</a>
+<ul>
+<li>
+<ul>
+<li><a href="#一-sync-waitgroup-进行goroutine的控制">一、sync.WaitGroup{}进行goroutine的控制</a></li>
+<li><a href="#二-简陋地给goroutine的函数传channel值或通过作用域的channel变量进行控制">二、简陋地给goroutine的函数传channel值或通过作用域的channel变量进行控制</a></li>
+<li><a href="#三-context进行goroutine的控制">三、context进行goroutine的控制</a></li>
+<li><a href="#四-总结">四、总结</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+</div>
 
-  
-    <div class="archive-post">
-      <time datetime="2019-11-28" class="archive-post-time">
-        2019-11-28
-      </time>
-      <span class="archive-post-title">
-        <a href="/post/mysql%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="archive-post-link">
-          Mysql学习笔记
-        </a>
-      </span>
+    
+    <div class="post-content">
+      
+
+<h2 id="groutine分组管理-sync-waitgroup">Groutine分组管理、sync、WaitGroup</h2>
+
+<h4 id="一-sync-waitgroup-进行goroutine的控制">一、sync.WaitGroup{}进行goroutine的控制</h4>
+
+<ul>
+<li><p>WaitGroup等待组是控制goroutine并发的一种方式，在我看来真正的意义是照顾弱势的“子goroutine”，通过Add()方法，确定预期要运行的goroutine的个数，然后goroutine内部通过defer延迟函数执行Done()方法，对一个goroutine运行结束后，进行计数减一，最后在“父goroutine”中的某个位置通过Wait()方法等待所有“子goroutine”执行结束，才能继续“父goroutine”的其他工作。</p></li>
+
+<li><p>示例代码如下：</p></li>
+</ul>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;sync&quot;
+	&quot;fmt&quot;
+)
+
+func main() {
+
+	var wg sync.WaitGroup
+
+	fmt.Println(&quot;Prepare get in goroutine&quot;)
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		fmt.Println(&quot;I`m in a goroutine.&quot;)
+	}()
+
+	fmt.Println(&quot;out the goroutine.&quot;)
+
+	wg.Wait() // 等待main中的goroutine执行完，才能继续下去
+	fmt.Println(&quot;main is stopping&quot;)
+}
+</code></pre>
+
+<h4 id="二-简陋地给goroutine的函数传channel值或通过作用域的channel变量进行控制">二、简陋地给goroutine的函数传channel值或通过作用域的channel变量进行控制</h4>
+
+<ul>
+<li><p>通过给函数传递一个通道参数，再通过select的其中一个case进行该通道接收判定，如果收到值就会执行终止goroutine的操作。</p></li>
+
+<li><p>通过作用域的通道变量是指，该通道变量不是在goroutine中声明的，换句话说是在该goroutine外面对声明的这个通道变量进行传值操作，会对该goroutine中这个通道变量的case判定造成接收，进而可以执行终止goroutine的操作。</p></li>
+
+<li><p>下面是通过goroutine的函数参数传值进行控制的方式。</p></li>
+</ul>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;fmt&quot;
+	&quot;time&quot;
+)
+
+func main() {
+
+	ch := make(chan struct{})
+	go printSomething(ch)
+
+	time.Sleep(5*time.Second)
+	close(ch)
+	time.Sleep(10*time.Second)
+
+}
+
+func printSomething(ch chan struct{}) {
+	ticker := time.NewTicker(3*time.Second)
+	for {
+		select {
+		case &lt;-ch:
+			fmt.Println(&quot;finished printing work by channel&quot;)
+			return
+		case &lt;-ticker.C:
+			fmt.Println(&quot;finished printing work by time.Ticker&quot;)
+			return
+		default:
+			time.Sleep(time.Second)
+			fmt.Println(&quot;Hello World.&quot;)
+		}
+	}
+}
+</code></pre>
+
+<p>下面的示例是在一个作用域下通过通道传值影响到goroutine内的这个等待传值的通道来控制goroutine的方式。</p>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;fmt&quot;
+	&quot;time&quot;
+)
+
+func main() {
+	ch := make(chan bool)
+
+	go func() {
+		for {
+			select {
+			case &lt;-ch:
+				fmt.Println(&quot;stop the goroutine...&quot;)
+				return
+			default:
+				time.Sleep(time.Second)
+				fmt.Println(&quot;Doria`s sheep is eating grass.&quot;)
+			}
+		}
+	}()
+
+	time.Sleep(5*time.Second)
+	ch &lt;- true
+
+}
+</code></pre>
+
+<h4 id="三-context进行goroutine的控制">三、context进行goroutine的控制</h4>
+
+<ul>
+<li>context实现对goroutine的控制是通过该context的对象的取消函数对应的Done()函数，即一个struct{}类型的通道，当执行WithCancel()函数，会返回一个cancelFunc，当执行该函数时，会通知goroutine中的ctx.Done()函数，然后可以借此进行goroutine的停止退出。另外衍生出的方法还有WithDeadline(),WithTimeout(),WithValue(),其中WithDeadline(),WithTimeout()的功能大致与WithCancel()差不多，只是多了一个截止时间参数，而WithValue()是通过传入的key和val，在goroutine中传入实参context，然后共享到这个context的key的val值。</li>
+</ul>
+
+<p>示例如下</p>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;context&quot;
+	&quot;fmt&quot;
+	&quot;time&quot;
+)
+var lastName string = &quot;lastName&quot;
+
+func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+	ctxHasValue := context.WithValue(ctx, lastName, &quot;Stark&quot;)
+	go sayHello(ctxHasValue, &quot;Snow&quot;)
+	go sayHello(ctxHasValue, &quot;Joe&quot;)
+
+	time.Sleep(5*time.Second)
+	cancel()
+	time.Sleep(5*time.Second)
+	fmt.Println(&quot;main ends...&quot;)
+
+}
+
+func sayHello(ctx context.Context, name string) {
+	for {
+		select {
+		case &lt;-ctx.Done():
+			fmt.Printf(&quot;%s says: Goodbye, Arya %s...\n&quot;, name, ctx.Value(lastName))
+			return
+		default:
+			time.Sleep(time.Second)
+			fmt.Printf(&quot;Hello, Arya %s, I`m %s\n&quot;, ctx.Value(lastName), name)
+		}
+	}
+}
+</code></pre>
+
+<h4 id="四-总结">四、总结</h4>
+
+<ul>
+<li>简单总结一下，WaitGroup的作用是保证预期要执行的“子goroutine”都能执行到，而不被“父goroutine”欺负。而通过通道传值和context控制goroutine的停止，其实本质是没有太大区别的。但值得一提的是，前段时间在网上看过一篇文章，说Google公司的程序员写goroutine并发被要求并发函数的第一个参数需要是ctx context.Context，不论真假，至少说明了一件事，使用到context来控制goroutine是非常美观和方便的。在高并发的开发场景下，goroutine之间的通信和控制会变得异常艰难，如果使用到context，可以安全地停止goroutine，方便地进行通信操作。</li>
+</ul>
+
     </div>
+
+    
+    
+<div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">靖多多</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+      2019-11-28
+      
+    </span>
+  </p>
   
-</section>
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a href="https://github.com/gohugoio/hugoBasicExample" rel="noopener" target="_blank">See origin</a></span>
+  </p>
+</div>
 
 
+    
+    
 
+    <footer class="post-footer">
+      <div class="post-tags">
+          <a href="https://linchengLC.github.io/tags/goroutine/">Goroutine</a>
+          <a href="https://linchengLC.github.io/tags/go/">go</a>
+          
+        </div>
 
+      
+      <nav class="post-nav">
+        
+          <a class="prev" href="/post/flag/">
+            
+            <i class="iconfont">
+              <svg  class="icon" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="18" height="18">
+  <path d="M691.908486 949.511495l75.369571-89.491197c10.963703-12.998035 10.285251-32.864502-1.499144-44.378743L479.499795 515.267417 757.434875 204.940602c11.338233-12.190647 11.035334-32.285311-0.638543-44.850487l-80.46666-86.564541c-11.680017-12.583596-30.356378-12.893658-41.662889-0.716314L257.233596 494.235404c-11.332093 12.183484-11.041474 32.266891 0.657986 44.844348l80.46666 86.564541c1.772366 1.910513 3.706415 3.533476 5.750981 4.877077l306.620399 321.703933C662.505829 963.726242 680.945807 962.528973 691.908486 949.511495z"></path>
+</svg>
 
+            </i>
+            <span class="prev-text nav-default">标准库Flag基本使用</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        
+          <a class="next" href="/post/mysql%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+            <span class="next-text nav-default">Mysql学习笔记</span>
+            <span class="prev-text nav-mobile">下一篇</span>
+            
+            <i class="iconfont">
+              <svg class="icon" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="18" height="18">
+  <path d="M332.091514 74.487481l-75.369571 89.491197c-10.963703 12.998035-10.285251 32.864502 1.499144 44.378743l286.278095 300.375162L266.565125 819.058374c-11.338233 12.190647-11.035334 32.285311 0.638543 44.850487l80.46666 86.564541c11.680017 12.583596 30.356378 12.893658 41.662889 0.716314l377.434212-421.426145c11.332093-12.183484 11.041474-32.266891-0.657986-44.844348l-80.46666-86.564541c-1.772366-1.910513-3.706415-3.533476-5.750981-4.877077L373.270379 71.774697C361.493148 60.273758 343.054193 61.470003 332.091514 74.487481z"></path>
+</svg>
+
+            </i>
+          </a>
+      </nav>
+    </footer>
+  </article>
 
   
   
+
+  
+  
+
   
 
   
   
 
   
-  
 
   
-  
 
   
+
+    
+
   
-
-
-
-
 
         </div>
       </div>
@@ -663,6 +927,13 @@
 
 
 
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
 
 
 

@@ -6,10 +6,1631 @@
     <description>Recent content on lin&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Tue, 12 Nov 2019 15:11:17 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 28 Nov 2019 12:11:17 +0800</lastBuildDate>
     
         <atom:link href="https://linchengLC.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>标准库Flag基本使用</title>
+      <link>https://linchengLC.github.io/post/flag/</link>
+      <pubDate>Thu, 28 Nov 2019 12:11:17 +0800</pubDate>
+      
+      <guid>https://linchengLC.github.io/post/flag/</guid>
+      
+        <description>
+
+&lt;p&gt;Go语言内置的&lt;code&gt;flag&lt;/code&gt;包实现了命令行参数的解析，&lt;code&gt;flag&lt;/code&gt;包使得开发命令行工具更为简单。&lt;/p&gt;
+
+&lt;h1 id=&#34;os-args&#34;&gt;os.Args&lt;/h1&gt;
+
+&lt;p&gt;如果你只是简单的想要获取命令行参数，可以像下面的代码示例一样使用&lt;code&gt;os.Args&lt;/code&gt;来获取命令行参数。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;package main
+
+import (
+	&amp;quot;fmt&amp;quot;
+	&amp;quot;os&amp;quot;
+)
+
+//os.Args demo
+func main() {
+	//os.Args是一个[]string
+	if len(os.Args) &amp;gt; 0 {
+		for index, arg := range os.Args {
+			fmt.Printf(&amp;quot;args[%d]=%v\n&amp;quot;, index, arg)
+		}
+	}
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;将上面的代码执行&lt;code&gt;go build -o &amp;quot;args_demo&amp;quot;&lt;/code&gt;编译之后，执行：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ ./args_demo a b c d
+args[0]=./args_demo
+args[1]=a
+args[2]=b
+args[3]=c
+args[4]=d
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;os.Args&lt;/code&gt;是一个存储命令行参数的字符串切片，它的第一个元素是执行文件的名称。&lt;/p&gt;
+
+&lt;h1 id=&#34;flag包基本使用&#34;&gt;flag包基本使用&lt;/h1&gt;
+
+&lt;p&gt;本文介绍了flag包的常用函数和基本用法，更详细的内容请查看&lt;a href=&#34;https://studygolang.com/pkgdoc&#34;&gt;官方文档&lt;/a&gt;。&lt;/p&gt;
+
+&lt;h2 id=&#34;导入flag包&#34;&gt;导入flag包&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;import flag
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;flag参数类型&#34;&gt;flag参数类型&lt;/h2&gt;
+
+&lt;p&gt;flag包支持的命令行参数类型有&lt;code&gt;bool&lt;/code&gt;、&lt;code&gt;int&lt;/code&gt;、&lt;code&gt;int64&lt;/code&gt;、&lt;code&gt;uint&lt;/code&gt;、&lt;code&gt;uint64&lt;/code&gt;、&lt;code&gt;float&lt;/code&gt; &lt;code&gt;float64&lt;/code&gt;、&lt;code&gt;string&lt;/code&gt;、&lt;code&gt;duration&lt;/code&gt;。&lt;/p&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th align=&#34;center&#34;&gt;flag参数&lt;/th&gt;
+&lt;th align=&#34;center&#34;&gt;有效值&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;字符串flag&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;合法字符串&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;整数flag&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;1234、0664、0x1234等类型，也可以是负数。&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;浮点数flag&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;合法浮点数&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;bool类型flag&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;1, 0, t, f, T, F, true, false, TRUE, FALSE, True, False。&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;时间段flag&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;任何合法的时间段字符串。如”300ms”、”-1.5h”、”2h45m”。 合法的单位有”ns”、”us” /“µs”、”ms”、”s”、”m”、”h”。&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h2 id=&#34;定义命令行flag参数&#34;&gt;定义命令行flag参数&lt;/h2&gt;
+
+&lt;p&gt;有以下两种常用的定义命令行&lt;code&gt;flag&lt;/code&gt;参数的方法。&lt;/p&gt;
+
+&lt;h3 id=&#34;flag-type&#34;&gt;flag.Type()&lt;/h3&gt;
+
+&lt;p&gt;基本格式如下：&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;flag.Type(flag名, 默认值, 帮助信息)*Type&lt;/code&gt; 例如我们要定义姓名、年龄、婚否三个命令行参数，我们可以按如下方式定义：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;func FlagDemo1()  {
+	name:=flag.String(&amp;quot;name&amp;quot;,&amp;quot;张三&amp;quot;,&amp;quot;姓名&amp;quot;)
+	age:=flag.Int(&amp;quot;age&amp;quot;,18,&amp;quot;年龄&amp;quot;)
+	married:=flag.Bool(&amp;quot;married&amp;quot;,false,&amp;quot;婚否&amp;quot;)
+	delay:=flag.Duration(&amp;quot;d&amp;quot;,0,&amp;quot;时间间隔&amp;quot;)
+	flag.Parse()
+	fmt.Println(*name,*age,*married,*delay)
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;需要注意的是，此时&lt;code&gt;name&lt;/code&gt;、&lt;code&gt;age&lt;/code&gt;、&lt;code&gt;married&lt;/code&gt;、&lt;code&gt;delay&lt;/code&gt;均为对应类型的指针。&lt;/p&gt;
+
+&lt;p&gt;命令行调用:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-SHELL&#34;&gt;./flag_demo.exe -name=&amp;quot;豪杰&amp;quot; -age=18 -married=false -d=30s
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;打印结果：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;豪杰 18 false 30s
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;flag-typevar&#34;&gt;flag.TypeVar()&lt;/h3&gt;
+
+&lt;p&gt;基本格式如下： &lt;code&gt;flag.TypeVar(Type指针, flag名, 默认值, 帮助信息)&lt;/code&gt; 例如我们要定义姓名、年龄、婚否三个命令行参数，我们可以按如下方式定义：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;func FlagDemo2()  {
+	var(
+		name string
+		age int
+		married bool
+		delay time.Duration
+	)
+	flag.StringVar(&amp;amp;name,&amp;quot;name&amp;quot;,&amp;quot;张三丰&amp;quot;,&amp;quot;姓名&amp;quot;)
+	flag.IntVar(&amp;amp;age,&amp;quot;age&amp;quot;,18,&amp;quot;年龄&amp;quot;)
+	flag.BoolVar(&amp;amp;married,&amp;quot;married&amp;quot;,false,&amp;quot;婚否&amp;quot;)
+	flag.DurationVar(&amp;amp;delay,&amp;quot;d&amp;quot;,0,&amp;quot;时间间隔&amp;quot;)
+	flag.Parse()
+	fmt.Println(name,age,married,delay)
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;flag-parse&#34;&gt;flag.Parse()&lt;/h2&gt;
+
+&lt;p&gt;通过以上两种方法定义好命令行flag参数后，需要通过调用&lt;code&gt;flag.Parse()&lt;/code&gt;来对命令行参数进行解析。&lt;/p&gt;
+
+&lt;p&gt;支持的命令行参数格式有以下几种：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;-flag xxx&lt;/code&gt; （使用空格，一个&lt;code&gt;-&lt;/code&gt;符号）&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--flag xxx&lt;/code&gt; （使用空格，两个&lt;code&gt;-&lt;/code&gt;符号）&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-flag=xxx&lt;/code&gt; （使用等号，一个&lt;code&gt;-&lt;/code&gt;符号）&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--flag=xxx&lt;/code&gt; （使用等号，两个&lt;code&gt;-&lt;/code&gt;符号）&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;其中，布尔类型的参数必须使用等号的方式指定。&lt;/p&gt;
+
+&lt;p&gt;Flag解析在第一个非flag参数（单个”-“不是flag参数）之前停止，或者在终止符”–“之后停止。&lt;/p&gt;
+
+&lt;h2 id=&#34;flag其他函数&#34;&gt;flag其他函数&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;flag.Args()  ////返回命令行参数后的其他参数，以[]string类型
+flag.NArg()  //返回命令行参数后的其他参数个数
+flag.NFlag() //返回使用的命令行参数个数
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;完整示例&#34;&gt;完整示例&lt;/h2&gt;
+
+&lt;h3 id=&#34;定义&#34;&gt;定义&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;func main() {
+	//定义命令行参数方式1
+	var name string
+	var age int
+	var married bool
+	var delay time.Duration
+	flag.StringVar(&amp;amp;name, &amp;quot;name&amp;quot;, &amp;quot;张三&amp;quot;, &amp;quot;姓名&amp;quot;)
+	flag.IntVar(&amp;amp;age, &amp;quot;age&amp;quot;, 18, &amp;quot;年龄&amp;quot;)
+	flag.BoolVar(&amp;amp;married, &amp;quot;married&amp;quot;, false, &amp;quot;婚否&amp;quot;)
+	flag.DurationVar(&amp;amp;delay, &amp;quot;d&amp;quot;, 0, &amp;quot;延迟的时间间隔&amp;quot;)
+
+	//解析命令行参数
+	flag.Parse()
+	fmt.Println(name, age, married, delay)
+	fmt.Println(flag.Args())//返回命令行参数后的其他参数
+	fmt.Println(flag.NArg())//返回命令行参数后的其他参数个数
+	fmt.Println(flag.NFlag())//返回使用的命令行参数个数
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;使用&#34;&gt;使用&lt;/h3&gt;
+
+&lt;p&gt;命令行参数使用提示：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ ./flag_demo -help
+Usage of ./flag_demo:
+  -age int
+        年龄 (default 18)
+  -d duration
+        时间间隔
+  -married
+        婚否
+  -name string
+        姓名 (default &amp;quot;张三&amp;quot;)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;正常使用命令行flag参数：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ ./flag_demo -name 沙河娜扎 --age 28 -married=false -d=1h30m
+沙河娜扎 28 false 1h30m0s
+[]
+0
+4
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;使用非flag命令行参数：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ ./flag_demo a b c
+张三 18 false 0s
+[a b c]
+3
+0
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+      
+    </item>
+    
+    <item>
+      <title>Goroutine管理</title>
+      <link>https://linchengLC.github.io/post/goroutine%E7%AE%A1%E7%90%86/</link>
+      <pubDate>Thu, 28 Nov 2019 03:11:17 +0800</pubDate>
+      
+      <guid>https://linchengLC.github.io/post/goroutine%E7%AE%A1%E7%90%86/</guid>
+      
+        <description>
+
+&lt;h2 id=&#34;groutine分组管理-sync-waitgroup&#34;&gt;Groutine分组管理、sync、WaitGroup&lt;/h2&gt;
+
+&lt;h4 id=&#34;一-sync-waitgroup-进行goroutine的控制&#34;&gt;一、sync.WaitGroup{}进行goroutine的控制&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;WaitGroup等待组是控制goroutine并发的一种方式，在我看来真正的意义是照顾弱势的“子goroutine”，通过Add()方法，确定预期要运行的goroutine的个数，然后goroutine内部通过defer延迟函数执行Done()方法，对一个goroutine运行结束后，进行计数减一，最后在“父goroutine”中的某个位置通过Wait()方法等待所有“子goroutine”执行结束，才能继续“父goroutine”的其他工作。&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;示例代码如下：&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;package main
+
+import (
+	&amp;quot;sync&amp;quot;
+	&amp;quot;fmt&amp;quot;
+)
+
+func main() {
+
+	var wg sync.WaitGroup
+
+	fmt.Println(&amp;quot;Prepare get in goroutine&amp;quot;)
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		fmt.Println(&amp;quot;I`m in a goroutine.&amp;quot;)
+	}()
+
+	fmt.Println(&amp;quot;out the goroutine.&amp;quot;)
+
+	wg.Wait() // 等待main中的goroutine执行完，才能继续下去
+	fmt.Println(&amp;quot;main is stopping&amp;quot;)
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;二-简陋地给goroutine的函数传channel值或通过作用域的channel变量进行控制&#34;&gt;二、简陋地给goroutine的函数传channel值或通过作用域的channel变量进行控制&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;通过给函数传递一个通道参数，再通过select的其中一个case进行该通道接收判定，如果收到值就会执行终止goroutine的操作。&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;通过作用域的通道变量是指，该通道变量不是在goroutine中声明的，换句话说是在该goroutine外面对声明的这个通道变量进行传值操作，会对该goroutine中这个通道变量的case判定造成接收，进而可以执行终止goroutine的操作。&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;下面是通过goroutine的函数参数传值进行控制的方式。&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;package main
+
+import (
+	&amp;quot;fmt&amp;quot;
+	&amp;quot;time&amp;quot;
+)
+
+func main() {
+
+	ch := make(chan struct{})
+	go printSomething(ch)
+
+	time.Sleep(5*time.Second)
+	close(ch)
+	time.Sleep(10*time.Second)
+
+}
+
+func printSomething(ch chan struct{}) {
+	ticker := time.NewTicker(3*time.Second)
+	for {
+		select {
+		case &amp;lt;-ch:
+			fmt.Println(&amp;quot;finished printing work by channel&amp;quot;)
+			return
+		case &amp;lt;-ticker.C:
+			fmt.Println(&amp;quot;finished printing work by time.Ticker&amp;quot;)
+			return
+		default:
+			time.Sleep(time.Second)
+			fmt.Println(&amp;quot;Hello World.&amp;quot;)
+		}
+	}
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;下面的示例是在一个作用域下通过通道传值影响到goroutine内的这个等待传值的通道来控制goroutine的方式。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;package main
+
+import (
+	&amp;quot;fmt&amp;quot;
+	&amp;quot;time&amp;quot;
+)
+
+func main() {
+	ch := make(chan bool)
+
+	go func() {
+		for {
+			select {
+			case &amp;lt;-ch:
+				fmt.Println(&amp;quot;stop the goroutine...&amp;quot;)
+				return
+			default:
+				time.Sleep(time.Second)
+				fmt.Println(&amp;quot;Doria`s sheep is eating grass.&amp;quot;)
+			}
+		}
+	}()
+
+	time.Sleep(5*time.Second)
+	ch &amp;lt;- true
+
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;三-context进行goroutine的控制&#34;&gt;三、context进行goroutine的控制&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;context实现对goroutine的控制是通过该context的对象的取消函数对应的Done()函数，即一个struct{}类型的通道，当执行WithCancel()函数，会返回一个cancelFunc，当执行该函数时，会通知goroutine中的ctx.Done()函数，然后可以借此进行goroutine的停止退出。另外衍生出的方法还有WithDeadline(),WithTimeout(),WithValue(),其中WithDeadline(),WithTimeout()的功能大致与WithCancel()差不多，只是多了一个截止时间参数，而WithValue()是通过传入的key和val，在goroutine中传入实参context，然后共享到这个context的key的val值。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;示例如下&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;package main
+
+import (
+	&amp;quot;context&amp;quot;
+	&amp;quot;fmt&amp;quot;
+	&amp;quot;time&amp;quot;
+)
+var lastName string = &amp;quot;lastName&amp;quot;
+
+func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+	ctxHasValue := context.WithValue(ctx, lastName, &amp;quot;Stark&amp;quot;)
+	go sayHello(ctxHasValue, &amp;quot;Snow&amp;quot;)
+	go sayHello(ctxHasValue, &amp;quot;Joe&amp;quot;)
+
+	time.Sleep(5*time.Second)
+	cancel()
+	time.Sleep(5*time.Second)
+	fmt.Println(&amp;quot;main ends...&amp;quot;)
+
+}
+
+func sayHello(ctx context.Context, name string) {
+	for {
+		select {
+		case &amp;lt;-ctx.Done():
+			fmt.Printf(&amp;quot;%s says: Goodbye, Arya %s...\n&amp;quot;, name, ctx.Value(lastName))
+			return
+		default:
+			time.Sleep(time.Second)
+			fmt.Printf(&amp;quot;Hello, Arya %s, I`m %s\n&amp;quot;, ctx.Value(lastName), name)
+		}
+	}
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;四-总结&#34;&gt;四、总结&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;简单总结一下，WaitGroup的作用是保证预期要执行的“子goroutine”都能执行到，而不被“父goroutine”欺负。而通过通道传值和context控制goroutine的停止，其实本质是没有太大区别的。但值得一提的是，前段时间在网上看过一篇文章，说Google公司的程序员写goroutine并发被要求并发函数的第一个参数需要是ctx context.Context，不论真假，至少说明了一件事，使用到context来控制goroutine是非常美观和方便的。在高并发的开发场景下，goroutine之间的通信和控制会变得异常艰难，如果使用到context，可以安全地停止goroutine，方便地进行通信操作。&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+      
+    </item>
+    
+    <item>
+      <title>Mysql学习笔记</title>
+      <link>https://linchengLC.github.io/post/mysql%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
+      <pubDate>Thu, 28 Nov 2019 03:11:17 +0800</pubDate>
+      
+      <guid>https://linchengLC.github.io/post/mysql%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
+      
+        <description>
+
+&lt;h3 id=&#34;常用mysql命令&#34;&gt;常用mysql命令&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;安装：
+
+&lt;ol&gt;
+&lt;li&gt;Linux 系统联网&lt;/li&gt;
+&lt;li&gt;sudo apt-get update&lt;/li&gt;
+&lt;li&gt;sudo apt-get install mysql-server&lt;/li&gt;
+&lt;/ol&gt;&lt;/li&gt;
+&lt;li&gt;启动：
+
+&lt;ol&gt;
+&lt;li&gt;/etc/init.d/mysql  start/stop/restart&lt;br /&gt;&lt;/li&gt;
+&lt;li&gt;service mysql start/stop/restart&lt;/li&gt;
+&lt;/ol&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;查看：&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;mysql -V 查看版本&lt;/li&gt;
+&lt;li&gt;service mysql status  查看当前mysql服务器运行状态。&lt;/li&gt;
+&lt;li&gt;netstat -apn | grep mysql  查看当前mysql服务器进程（守护进程）信息。 端口：3306&lt;/li&gt;
+&lt;/ol&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;登录：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;语法：mysql -h IP地址 -P 端口号 -u 用户名 -p密码&lt;/li&gt;
+&lt;li&gt;mysql -h 127.0.0.1 -P 3306 -u root -p123456&lt;/li&gt;
+&lt;li&gt;mysql  -u root -p123456  登录本地数据库。 明文密码输入。&lt;/li&gt;
+&lt;li&gt;mysql  -u root -p 回车。  隐藏密码输入。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;一-模糊查询&#34;&gt;一：模糊查询&lt;/h3&gt;
+
+&lt;ol&gt;
+&lt;li&gt;like&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;特点：&lt;/p&gt;
+
+&lt;p&gt;一般和通配符搭配使用&lt;/p&gt;
+
+&lt;p&gt;​                通配符：&lt;/p&gt;
+
+&lt;p&gt;​                %   任意多个字符，包含0个字符&lt;/p&gt;
+
+&lt;p&gt;​                _   任意单个字符&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;between and&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;in&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;is null | is not null&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h4 id=&#34;1-like&#34;&gt;1）LIKE&lt;/h4&gt;
+
+&lt;h5 id=&#34;案例1&#34;&gt;案例1&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询员工名字中包含字符a的员工信息&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select *
+from employees
+where last_name like &#39;%a%&#39;;#abc
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例2&#34;&gt;案例2&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询员工名字中第三个字符为e，第五个字母为a的员工名和工资&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select last_name,salary
+from employees
+where last_name like &#39;__e_a%&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例3&#34;&gt;案例3&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询员工名中第二个字符为_的员工名&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select last_name
+from employees
+where last_name like &#39;_\_%&#39;;
+(where last_name like &#39;_$_%&#39; escape &#39;$&#39;(声明$为转义字符))
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;2-between-and&#34;&gt;2）between and&lt;/h4&gt;
+
+&lt;h5 id=&#34;案例1-1&#34;&gt;案例1&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询员工编号在100到120之间的员工信息&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select *
+from employees
+where employee_id between 100 and 120;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;3-in&#34;&gt;3）in&lt;/h4&gt;
+
+&lt;h5 id=&#34;案例1-2&#34;&gt;案例1&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询员工的工种编号是IT_PROG、AD_VP、AD_PRES中的一个员工名和工种编号&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select last_name,job_id
+from employees
+where job_id in(&#39;IT_PROG&#39;,&#39;AD_VP&#39;,&#39;AD_PRES&#39;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;4-is-null-is-not-null&#34;&gt;4）is null | is not null&lt;/h4&gt;
+
+&lt;h5 id=&#34;案例1-3&#34;&gt;案例1&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询没有奖金的员工名和奖金率&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select last_name,comission_pct
+from employees
+where commission_pct is null;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;5-安全等于-不等于&#34;&gt;5）安全等于&amp;lt;=&amp;gt;、不等于&amp;lt;&amp;gt;&lt;/h4&gt;
+
+&lt;p&gt;&amp;lt;=&amp;gt;既可以判断null值，也可以判断普通的数值，可读性较低&lt;/p&gt;
+
+&lt;h5 id=&#34;案例1-4&#34;&gt;案例1&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询没有奖金的员工名和奖金率&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select last_name,comission_pct
+from employees
+where commission_pct &amp;lt;=&amp;gt; null;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;二-常用函数&#34;&gt;二、常用函数&lt;/h3&gt;
+
+&lt;h4 id=&#34;1-concat函数&#34;&gt;1）concat函数&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;拼接字符&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select concat(字符1，字符2，字符3，....);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;2-distinct&#34;&gt;2）distinct&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;去重&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select distinct 字段名 from 表名
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;3-ifnull&#34;&gt;3）ifnull&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;判断某字段或表达式是否为null，如果为null返回指定的值，否则返回原本的值&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select ifnull(commission_pct,0) from employees;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;4-isnull&#34;&gt;4）isnull&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;判断某个字段或表达式是否为null，如果是，则返回1，否则返回0&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;三-排序查询&#34;&gt;三、排序查询&lt;/h3&gt;
+
+&lt;p&gt;语法：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select 查询列表
+from 表
+【where 筛选条件】
+order by 排序列表 【desc|asc】
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例1-5&#34;&gt;案例1&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询员工信息，要求工资从高到低排序&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select * 
+from employees 
+order by salary desc;
+(默认不写为升序)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例2-1&#34;&gt;案例2&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询部门编号&amp;gt;=90的员工信息，按入职时间的先后进行排序&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select * 
+from employees 
+where department_id&amp;gt;=90
+order by hiredate asc;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例3-1&#34;&gt;案例3&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;按年薪的高低显示员工的信息和年薪【按表达式排序】&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select *,salary*12*(1+ifnull(commission_pct,0)) 年薪
+from employees
+order by 年薪 desc;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例4&#34;&gt;案例4&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;按姓名的长度显示员工的姓名和工资【按函数排序】&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select length(last_name) 字节长度,last_name,salary
+from employees
+order by length(last_name) desc;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例5&#34;&gt;案例5&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询员工信息，要求先按工资排序，再按员工编号排序【按多个字段排序】&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select * 
+from employees
+order by salary asc,job_id desc;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;四-单行函数&#34;&gt;四、单行函数&lt;/h3&gt;
+
+&lt;h4 id=&#34;1-字符函数&#34;&gt;1）字符函数&lt;/h4&gt;
+
+&lt;ol&gt;
+&lt;li&gt;length  获取参数值的字节个数&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select length(&#39;john&#39;);
+   结果：4
+   select length(&#39;张三丰haha&#39;);
+   结果：13
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;concat 拼接字符串&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select concat(last_name,&#39;_&#39;,first_name)
+   from employees;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;upper、lower&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select upper(&#39;john&#39;);
+   select lower(&#39;joHn&#39;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;示例：将姓变大写，名变小写，然后拼接&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select concat(upper(last_name),lower(first_name)) 姓名 
+   from employees;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;substr、substring 截取字符串&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;注意：sql中索引从1开始&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;截取从指定索引处后面所有字符&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select substr(&#39;李莫愁爱上了陆展元&#39;,7) out_put;
+   结果：陆展元
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;截取从指定索引处指定字符长度的字符&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select substr(&#39;李莫愁爱上了陆展元&#39;,1,3) out_put;
+   结果：李莫愁
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;案例：姓名中首字符大写，其他字符小写然后用_拼接，显示出来&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select concat(upper(substr(last_name,1,1)),&#39;_&#39;,lower(substr(last_name,2)))
+   from employees;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;instr 返回子串第一次出现起始索引，如果找不到返回0&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select instr(&#39;杨不殷六侠梅爱上了殷六侠&#39;,&#39;殷六侠&#39;) as out_put;
+   结果：10
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;trim 去除前后空格&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select trim(&#39;  张翠山   &#39;) as out_put;
+   结果：张翠山
+   select trim(&#39;a&#39; from &#39;aaaaaaaa张aaaaaaa翠山aaaaaaaaaaaaaaaaaaaaaaaa&#39;) as out_put;
+   结果：张aaaaaaa翠山
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;lpad 用指定的字符实现左填充指定长度&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select lpad(&#39;殷素素&#39;,10,&#39;*&#39;) as out_put;
+   结果：*******殷素素(加上殷素素为10)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;replace 替换&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select replace(&#39;张无忌爱上了周芷若&#39;,&#39;周芷若&#39;,&#39;赵敏&#39;) as out_put;
+   结果：张无忌爱上了赵敏
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;2-数学函数&#34;&gt;2）数学函数&lt;/h4&gt;
+
+&lt;ol&gt;
+&lt;li&gt;round 四舍五入&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select round(-1.55);
+   结果：-2
+   select round(1.567,2);
+   结果：1.57
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;ceil 向上取整，返回&amp;gt;=该参数的最小整数&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select ceil(-1.02);
+   结果：-1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;floor 向下取整，返回&amp;lt;=该参数的最大整&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select floor(-9.99);
+   结果：-10
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;truncate 截断&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select truncate(1.6999,1);
+   结果：1.6
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;mod 取余&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select mod(10,-3);
+   结果：1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;3-日期函数&#34;&gt;3）日期函数&lt;/h4&gt;
+
+&lt;ol&gt;
+&lt;li&gt;now 返回当前系统日期+时间&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select now();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;curdate 返回当前系统日期，不包含时间&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select curdate();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;curtime 返回当前系统时间，不包含日期&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select curtime();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;可以获取指定的部分，年、月、日、小时、分钟、秒&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select YEAR(NOW()) 年;  
+   select YEAR(&#39;1998-1-1&#39;) 年;
+   select YEAR(hiredata) 年 from employees;
+   select MONTHNAME(NOW()) 月;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;str_to_date 将字符通过指定的格式转换成日期&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select str_to_date(&#39;1998-3-2&#39;,&#39;%Y-%c-%d&#39;) as out_put;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;案例：查询入职日期为1992-4-3的员工信息&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select * from employees where hiredate=&#39;1992-4-3&#39;
+   实际业务场景：
+   查询日期输入的不一定是按照数据库内保存数据格式相同输入的
+   select * from employess where hiredate=str_to_date(&#39;4-3 1992&#39;,&#39;%c-%d %Y&#39;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;date_format 将日期转换成字符&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select DATE_FORMAT(now(),&#39;%y年%m月%d日&#39;) as out_put
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;案例：查询有奖金的员工名和入职日期(xx月/xx日 xx年)&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select last_name,DATE_FORMAT(hiredate,&#39;%m月%d日 %y年&#39;) 入职日期
+   from employees
+   where commission_pct is not null
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;4-流程控制函数&#34;&gt;4）流程控制函数&lt;/h4&gt;
+
+&lt;ol&gt;
+&lt;li&gt;if函数 if else的效果&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select if(10&amp;lt;5,&#39;大&#39;,&#39;小&#39;)
+   select last_name,commission_pct,IF(commission_pct is null,&#39;没奖金，呵呵&#39;,&#39;有奖金，嘻嘻&#39;);
+   结果：
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://upload-images.jianshu.io/upload_images/19131697-3efe4072ad166502.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;case函数的使用&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;效果1：类似于switch case&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   case 要判断的字段或表达式
+   when 常量1 then 要显示的值1或语句1
+   when 常量2 then 要显示的值2或语句2
+   ...
+   else 要显示的值n或语句n
+   end
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;案例：查询员工的工资，要求&lt;/p&gt;
+
+&lt;p&gt;​    部门号=30，显示的工资为1.1倍&lt;/p&gt;
+
+&lt;p&gt;​    部门号=40，显示的工资为1.2倍&lt;/p&gt;
+
+&lt;p&gt;​    部门号=50，显示的工资为1.3倍&lt;/p&gt;
+
+&lt;p&gt;​    其他部门，显示的工资为原工资&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select salary 原始工资,department_id,
+   case department_id
+   when 30 then salary*1.1
+   when 40 then salary*1.2
+   when 50 then salary*1.3
+   else salary
+   end as 新工资
+   from employess
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;效果2：类似于多重if&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   case 
+   when 常量1 then 要显示的值1或语句1
+   when 常量2 then 要显示的值2或语句2
+   ...
+   else 要显示的值n或语句n
+   end
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;案例：查询员工的工资情况&lt;/p&gt;
+
+&lt;p&gt;​    如果工资&amp;gt;20000，显示A级别&lt;/p&gt;
+
+&lt;p&gt;​    如果工资&amp;gt;15000，显示B级别&lt;/p&gt;
+
+&lt;p&gt;​    如果工资&amp;gt;10000，显示C级别&lt;/p&gt;
+
+&lt;p&gt;​    否则，显示D级别&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;   select salary,
+   case 
+   when salary&amp;gt;20000 then &#39;A&#39;
+   when salary&amp;gt;15000 then &#39;B&#39;
+   when salary&amp;gt;10000 then &#39;C&#39;
+   else &#39;D&#39;
+   end as 工资级别
+   from employess
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;五-分组函数&#34;&gt;五、分组函数&lt;/h3&gt;
+
+&lt;p&gt;SUM、AVG、MAX、MIN、COUNT&lt;/p&gt;
+
+&lt;p&gt;特点：&lt;/p&gt;
+
+&lt;p&gt;​   1、sum、avg一般用于处理数值型&lt;/p&gt;
+
+&lt;p&gt;​         max、min、count可以处理任何类型&lt;/p&gt;
+
+&lt;p&gt;​   2、以上分组函数都忽略null值&lt;/p&gt;
+
+&lt;p&gt;​   3、可以和distinct搭配实现去重的运算&lt;/p&gt;
+
+&lt;p&gt;​   4、count函数的详细介绍&lt;/p&gt;
+
+&lt;p&gt;​         一般使用count(*)用作统计行数&lt;/p&gt;
+
+&lt;p&gt;​   5、和分组函数一同查询的字段要求是group by后的字段&lt;/p&gt;
+
+&lt;h4 id=&#34;1-简单使用&#34;&gt;1）简单使用&lt;/h4&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select SUM(salary) FROM employees;
+select AVG(salary) FROM employees;
+select MIN(salary) FROM employees;
+select MAX(salary) FROM employees;
+select COUNT(salary) FROM employees;
+
+select SUM(salary) 和,AVG(salary) 平均,MAX(salary) 最高,MIN(salary) 最低,COUNT(salary) 个数 FROM employees;
+
+select SUM(salary) 和,ROUND(AVG(salary),2) 平均,MAX(salary) 最高,MIN(salary) 最低,COUNT(salary) 个数 FROM employees;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;2-参数支持哪些类型&#34;&gt;2）参数支持哪些类型&lt;/h4&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select SUM(last_name),AVG(last_name) FROM emloyees;
+select SUM(hiredate),AVG(hiredate) FROM emloyees;
+上述两种无意义
+
+select MAX(last_name),MIN(last_name) FROM emloyees;
+select MAX(hiredate),MIN(hiredate) FROM emloyees;
+
+select COUNT(commission_pct) FROM employees;
+select COUNT(last_name) FROM employees;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;3-忽略null值&#34;&gt;3）忽略null值&lt;/h4&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select SUM(commission_pct),AVG(commission_pct) FROM emloyees;
+select COUNT(commission_pct) FROM employees;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;4-和distinct搭配&#34;&gt;4）和distinct搭配&lt;/h4&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select SUM(DISTINCT salary),SUM(salary) FROM employees;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;5-count函数的详细介绍&#34;&gt;5）COUNT函数的详细介绍&lt;/h4&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select COUNT(*) FROM employees;		#经常用于统计行数
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;效率：&lt;/p&gt;
+
+&lt;p&gt;MYISAM存储引擎下，COUNT(*)的效率高&lt;/p&gt;
+
+&lt;p&gt;INNODB存储引擎下，COUNT(*)和COUNT(1)的效率差不多，比COUNT(字段)要高一些（原因：如果是字段需要先判断是否为null，不为才加1，因此效率相对较低）&lt;/p&gt;
+
+&lt;h3 id=&#34;六-分组查询&#34;&gt;六、分组查询&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;语法&lt;/strong&gt;：&lt;/p&gt;
+
+&lt;p&gt;​       select 分组函数，列（要求出现在group by的后面）&lt;/p&gt;
+
+&lt;p&gt;​       from 表&lt;/p&gt;
+
+&lt;p&gt;​     【where 筛选条件】&lt;/p&gt;
+
+&lt;p&gt;​       group by 分组的列表&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;【order by 子句】
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;注意&lt;/strong&gt;：&lt;/p&gt;
+
+&lt;p&gt;​       查询列表必须特殊，要求是分组函数和group by后出现的字段&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;特点&lt;/strong&gt;：&lt;/p&gt;
+
+&lt;p&gt;​       1、分组查询中的筛选条件分为两类&lt;/p&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;数据源&lt;/th&gt;
+&lt;th&gt;位置&lt;/th&gt;
+&lt;th&gt;关键字&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;分组前筛选&lt;/td&gt;
+&lt;td&gt;原始表&lt;/td&gt;
+&lt;td&gt;group by子句的前面&lt;/td&gt;
+&lt;td&gt;where&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;分组后筛选&lt;/td&gt;
+&lt;td&gt;分组后的结果集&lt;/td&gt;
+&lt;td&gt;group by子句的后面&lt;/td&gt;
+&lt;td&gt;having&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;​       ①分组函数做条件肯定是放在having子句&lt;/p&gt;
+
+&lt;p&gt;​       ②能用分组前筛选的，优先考虑使用分组前筛选&lt;/p&gt;
+
+&lt;p&gt;​       2、group by子句支持单个字段分组，多个字段分组（多个字段之间用逗号隔开没有顺序要求），表达式或函数（用的较少）&lt;/p&gt;
+
+&lt;p&gt;​       3、也可以添加排序（排序放在整个分组查询最后）&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;引入：查询每个部门的平均工资&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;select AVG(salary) FROM employees;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例1-6&#34;&gt;案例1：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询每个工种的最高工资&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select MAX(salary),job_id
+  FROM employees
+  GROUP BY job_id;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例2-2&#34;&gt;案例2：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询每个位置上的部门个数&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select COUNT(*),location_id
+  FROM departments
+  GROUP BY location_id;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例3-2&#34;&gt;案例3：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询邮箱中包含a字符的，每个部门的平均工资&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select AVG(salary),deparment_id
+  FROM employees
+  WHERE email LIKE &#39;%a%&#39;
+  GROUP BY deparment_id
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例4-1&#34;&gt;案例4：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询有奖金的每个领导手下员工的最高工资&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select MAX(salary),manager_id
+  FROM employees
+  WHERE commission_pct IS NOT NULL
+  GROUP BY manager_id;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例5-1&#34;&gt;案例5：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询哪个部门的员工个数&amp;gt;2&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;①查询每个部门的员工个数&lt;/p&gt;
+
+&lt;p&gt;②根据①的结果进行筛选，查询哪个部门的员工个数&amp;gt;2&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select COUNT(*),department_id
+  FROM employees
+  GROUP BY department_id
+  HAVING COUNT(*)&amp;gt;2;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例6&#34;&gt;案例6：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询每个工种有奖金的员工的最高工资&amp;gt;12000的工种编号和最高工资&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;①查询每个工种有奖金的员工的最高工资&lt;/p&gt;
+
+&lt;p&gt;②根据①结果继续筛选，最高工资&amp;gt;12000&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select job_id,MAX(salary)
+  FROM employees
+  WHERE commission_pct IS NOT NULL
+  GROUP BY job_id
+  HAVING MAX(salary)&amp;gt;12000;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例7&#34;&gt;案例7：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询领导编号&amp;gt;102的每个领导手下最低工资&amp;gt;5000的领导编号是哪个，以及其最低工资&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;①查询每个领导手下的员工固定最低工资&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select manager_id,MIN(salary)
+  FROM employees
+  GROUP BY manager_id
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;②添加筛选条件，编号&amp;gt;102&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select manager_id,MIN(salary)
+  FROM employees
+  WHERE manager_id&amp;gt;102		#manager_id在employees表里，因此放在group by前面
+  GROUP BY manager_id
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;③添加筛选条件，最低工资&amp;gt;5000&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select manager_id,MIN(salary)
+  FROM employees
+  WHERE manager_id&amp;gt;102		#manager_id在employees表里，因此放在group by前面
+  GROUP BY manager_id
+  HAVING MIN(salary)&amp;gt;5000
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;按表达式或函数分组&#34;&gt;按表达式或函数分组&lt;/h4&gt;
+
+&lt;h5 id=&#34;案例8&#34;&gt;案例8：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;按员工姓名的长度分组，查询每一组的员工个数，筛选员工个数&amp;gt;5的有哪些&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;①查询每个长度的员工个数&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select COUNT(*),LENGTH(last_name) len_name
+  FROM employees
+  GROUP BY LENGTH(last_name);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;②添加筛选条件&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select COUNT(*),LENGTH(last_name) len_name
+  FROM employees
+  GROUP BY LENGTH(last_name)
+  HAVING COUNT(*)&amp;gt;5;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;按多个字段分组&#34;&gt;按多个字段分组&lt;/h4&gt;
+
+&lt;h5 id=&#34;案例9&#34;&gt;案例9：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询每个部门每个工种的员工的平均工资&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select AVG(salary),department_id,job_id
+  FROM employees
+  GROUP BY department_id,job_id;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;添加排序&#34;&gt;添加排序&lt;/h4&gt;
+
+&lt;h5 id=&#34;案例10&#34;&gt;案例10：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询每个部门每个工种的员工的平均工资，并且按平均工资的高低显示&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select AVG(salary),department_id,job_id
+  FROM employees
+  GROUP BY department_id,job_id
+  HAVING AVG(salary)&amp;gt;10000
+  ORDER BY AVG(salary) DESC;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;七-连接查询&#34;&gt;七、连接查询&lt;/h3&gt;
+
+&lt;p&gt;含义：又称多表查询，当查询的字段来自于多个表时，就会用到连接查询&lt;/p&gt;
+
+&lt;p&gt;笛卡尔乘积现象：表1有m行，表2有n行，结果=m*n行&lt;/p&gt;
+
+&lt;p&gt;发生原因：没有有效的连接条件&lt;/p&gt;
+
+&lt;p&gt;如何避免：添加有效的连接条件&lt;/p&gt;
+
+&lt;p&gt;分类：&lt;/p&gt;
+
+&lt;p&gt;​       内连接：&lt;/p&gt;
+
+&lt;p&gt;​                   等值连接&lt;/p&gt;
+
+&lt;p&gt;​                   非等值连接&lt;/p&gt;
+
+&lt;p&gt;​                   自连接&lt;/p&gt;
+
+&lt;p&gt;​       外连接：&lt;/p&gt;
+
+&lt;p&gt;​                   左外连接&lt;/p&gt;
+
+&lt;p&gt;​                   右外连接&lt;/p&gt;
+
+&lt;p&gt;​                   全外连接&lt;/p&gt;
+
+&lt;p&gt;​       交叉连接&lt;/p&gt;
+
+&lt;h3 id=&#34;1-sql92语法&#34;&gt;1）sql92语法：&lt;/h3&gt;
+
+&lt;h4 id=&#34;1-等值连接&#34;&gt;1、等值连接&lt;/h4&gt;
+
+&lt;h5 id=&#34;案例1-7&#34;&gt;案例1：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询女神名和对应的男神名&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select name,boyName 
+  From boys,beauty
+  where beauty.boyfriend_id=boys.id;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例2-3&#34;&gt;案例2：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询员工名和对应的部门名&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select last_name,department_name
+  FROM employees,departments
+  WHERE employees.&#39;department_id&#39;=departments.&#39;department_id&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例3-3&#34;&gt;案例3：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询员工名、工种号、工种名(起别名)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select last_name,employees.job_id,job_title
+  FROM employees,jobs
+  where employees.&#39;job_id&#39;=jobs.&#39;job_id&#39;;
+  
+  select last_name,e.job_id,job_title
+  FROM employees as e,jobs as j
+  where e.&#39;job_id&#39;=j.&#39;job_id&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例4-2&#34;&gt;案例4：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询有奖金的员工名、部门名&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select last_name,department_name,commission_pct
+  from employees e,departments d
+  where e.&#39;department_id&#39;=d.&#39;department_id&#39;
+  and e.&#39;commission_pct&#39; is not null;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例5-2&#34;&gt;案例5：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询城市名中第二个字符为o的部门名和城市名&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select department_name,city
+  from departments d,locations l
+  where d.&#39;location_id&#39;=l.&#39;location_id&#39;
+  and city like &#39;_o%&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例6-1&#34;&gt;案例6：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询每个城市的部门个数&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select count(*) 个数,city
+  from departments d,locations l
+  where d.&#39;location_id&#39;=l.&#39;location_id&#39;
+  group by city;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例7-1&#34;&gt;案例7：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询有奖金的每个部门的部门名称和部门的领导编号和该部门的最低工资&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select department_name,d.&#39;manager_id&#39;,min(salary)
+  from departments d,employees e
+  where d.&#39;department_id&#39;=e.&#39;department_id&#39;
+  and commission_pct is not null
+  group by department_name;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例8-1&#34;&gt;案例8：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询每个工种的工种名和员工的个数，并且按员工个数降序&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select job_title,count(*)
+  from employees e,jobs j
+  where e.&#39;job_id&#39;=j.&#39;job_id&#39;
+  group by job_title
+  group by count(*) desc;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例9-1&#34;&gt;案例9：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询员工名、部门名和所在城市&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select last_name,department_name,city
+  from employees e,departments d,locations l
+  where e.&#39;department_id&#39;=d.&#39;department_id&#39;
+  and d.&#39;location_id&#39;=l.&#39;location_id&#39;
+  and city like &#39;s%&#39;
+  order by department_name desc;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;2-非等值连接&#34;&gt;2、非等值连接&lt;/h4&gt;
+
+&lt;h5 id=&#34;案例1-8&#34;&gt;案例1：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询员工的工资和工资级别&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select salary,grade_level
+  from employees e,job_grades g
+  where salary between g.&#39;lowest_sal&#39; and g.&#39;highest_sal&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;3-自连接&#34;&gt;3、自连接&lt;/h4&gt;
+
+&lt;h5 id=&#34;案例1-9&#34;&gt;案例1：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询员工名和上级的名称&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select e.&#39;last_name&#39;,e.&#39;employee_id&#39;,m.&#39;last_name&#39;,m.&#39;employee_id&#39;,
+  from employees e,employees m
+  where e.&#39;manager_id&#39;=m.&#39;employee_id&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;2-sql99语法&#34;&gt;2）sql99语法：&lt;/h3&gt;
+
+&lt;p&gt;语法：&lt;/p&gt;
+
+&lt;p&gt;​       select 查询列表&lt;/p&gt;
+
+&lt;p&gt;​       from 表1 别名 【连接类型】&lt;/p&gt;
+
+&lt;p&gt;​       join   表2 别名&lt;/p&gt;
+
+&lt;p&gt;​       on     连接条件&lt;/p&gt;
+
+&lt;p&gt;​       【where 筛选条件】&lt;/p&gt;
+
+&lt;p&gt;​       【group by 分组】&lt;/p&gt;
+
+&lt;p&gt;​       【having 筛选条件】&lt;/p&gt;
+
+&lt;p&gt;​       【order by 排序列表】&lt;/p&gt;
+
+&lt;p&gt;分类：&lt;/p&gt;
+
+&lt;p&gt;内连接（*）：inner&lt;/p&gt;
+
+&lt;p&gt;外连接：&lt;/p&gt;
+
+&lt;p&gt;​           左外（*）：left 【outer】&lt;/p&gt;
+
+&lt;p&gt;​           右外（*）：right 【outer】&lt;/p&gt;
+
+&lt;p&gt;​           全外：full 【outer】&lt;/p&gt;
+
+&lt;p&gt;交叉连接：cross&lt;/p&gt;
+
+&lt;h4 id=&#34;1-内连接&#34;&gt;1、内连接&lt;/h4&gt;
+
+&lt;p&gt;语法：&lt;/p&gt;
+
+&lt;p&gt;select 查询列表&lt;/p&gt;
+
+&lt;p&gt;from 表1 别名&lt;/p&gt;
+
+&lt;p&gt;inner join 表2 别名&lt;/p&gt;
+
+&lt;p&gt;on 连接条件&lt;/p&gt;
+
+&lt;h4 id=&#34;①等值连接&#34;&gt;①等值连接&lt;/h4&gt;
+
+&lt;h5 id=&#34;案例1-10&#34;&gt;案例1：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询员工名、部门名&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select last_name,department_name
+  from employees e
+  inner join departments d
+  on e.&#39;department_id&#39;=d.&#39;department_id&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例2-4&#34;&gt;案例2：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询名字中包含e的员工名和工种名（筛选）&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select last_name,job_title
+  from employees e
+  inner join jobs j
+  on e.&#39;job_id&#39;=j.&#39;job_id&#39;
+  where e.&#39;last_name&#39; like &#39;%e%&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例3-4&#34;&gt;案例3：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询部门个数&amp;gt;3的城市名和部门个数（添加分组+筛选）&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select city,count(*) 部门个数
+  from departments d
+  inner join location l
+  on d.&#39;location_id&#39;=l.&#39;location_id&#39;
+  group by city
+  having count(*)&amp;gt;3;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例4-3&#34;&gt;案例4：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询哪个部门的部门员工个数&amp;gt;3的部门名和员工个数，并按个数降序(添加排序)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select department_name,count(*) 个数
+  from employees e
+  inner join departments d
+  on e.&#39;department_id&#39;=d.&#39;department_id&#39;
+  group by d.&#39;department_name&#39;
+  having count(*)&amp;gt;3
+  order by count(*) desc;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例5-3&#34;&gt;案例5：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询员工名、部门名、工种名，并按部门名降序&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select last_name,department_name,job_title
+  from employees e
+  inner join departments d 
+  on e.&#39;department_id&#39;=d.&#39;deparmtent_id&#39;
+  inner join jobs j
+  on e.&#39;job_id&#39;=j.&#39;job_id&#39;
+  order by department_name desc;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;②非等值连接&#34;&gt;②非等值连接&lt;/h4&gt;
+
+&lt;h5 id=&#34;案例1-11&#34;&gt;案例1：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询员工的工资级别&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select salary,grade_level
+  from employees e
+  join job_grades g
+  on e.&#39;salary&#39; between g.&#39;lowest_sal&#39; and g.&#39;highest_sal&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;案例2-5&#34;&gt;案例2：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询每个工资级别的个数&amp;gt;2的个数，并且按工资级别降序&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select count(*),grade_level
+  from employees e
+  join job_grades g
+  on e.&#39;salary&#39; between g.&#39;lowest_sal&#39; and g.&#39;highest_sal&#39;
+  group by grade_level
+  having count(*)&amp;gt;2
+  order by grade_level desc;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;③自连接&#34;&gt;③自连接&lt;/h4&gt;
+
+&lt;h5 id=&#34;案例1-12&#34;&gt;案例1：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询员工的名字、上级的名字&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select e.&#39;last_name&#39;,m.&#39;last_name&#39;
+  from employees e
+  join employees m
+  on e.&#39;manager_id&#39;=m.&#39;employee_id&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;2-外连接&#34;&gt;2、外连接&lt;/h4&gt;
+
+&lt;p&gt;&lt;strong&gt;应用场景&lt;/strong&gt;：用于查询一个表中有，另一个表没有的记录&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;特点&lt;/strong&gt;：&lt;/p&gt;
+
+&lt;p&gt;1、外连接的插叙结果为主表中的所有记录&lt;/p&gt;
+
+&lt;p&gt;​       如果从表中有和它匹配的，则显示匹配的值&lt;/p&gt;
+
+&lt;p&gt;​       如果从表中没有和它匹配的，则显示null&lt;/p&gt;
+
+&lt;p&gt;​       外连接查询结果=内连接结果+主表中有而从表没有的记录&lt;/p&gt;
+
+&lt;p&gt;2、左外连接，left左边的是主表&lt;/p&gt;
+
+&lt;p&gt;​     右外连接，right  join右边的是主表&lt;/p&gt;
+
+&lt;p&gt;3、左外和右外交换两个表的顺序，可以实现同样的效果&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;语法&lt;/strong&gt;：&lt;/p&gt;
+
+&lt;p&gt;select 查询列表&lt;/p&gt;
+
+&lt;p&gt;from 表1 别名&lt;/p&gt;
+
+&lt;p&gt;left(right) join 表2 别名&lt;/p&gt;
+
+&lt;p&gt;on 连接条件&lt;/p&gt;
+
+&lt;h4 id=&#34;①左外-右外连接&#34;&gt;①左外、右外连接&lt;/h4&gt;
+
+&lt;h5 id=&#34;案例1-13&#34;&gt;案例1：&lt;/h5&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询哪个部门没有员工&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;  select d.*,employee_id
+  from departments d
+  left join employees e
+  on d.&#39;department_id&#39;=e.&#39;department_id&#39;
+  where e.&#39;employee_id&#39; is null;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;②全外连接&#34;&gt;②全外连接&lt;/h4&gt;
+
+&lt;h5 id=&#34;案例1-14&#34;&gt;案例1：&lt;/h5&gt;
+</description>
+      
+    </item>
     
     <item>
       <title>Golang的Channel底层原理</title>
